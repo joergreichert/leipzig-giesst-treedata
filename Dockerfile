@@ -19,7 +19,7 @@ RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh \
     conda update conda && \
     conda create -n treedata && \
     conda activate treedata && \
-    conda install python=3.10 pip geopandas
+    conda install python=3.10 gdal geopandas requests
 COPY ./treedata.py treedata.py
 RUN echo 'conda activate treedata \n\
 alias python-app="python treedata.py"' >> /root/.bashrc

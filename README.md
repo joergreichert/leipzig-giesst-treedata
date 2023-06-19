@@ -21,11 +21,9 @@ conda create -n treedata
 conda activate treedata
 conda config --env --add channels conda-forge
 conda config --env --set channel_priority strict
-conda install python=3 gdal geopandas
+conda install python=3 gdal geopandas requests
 ```
 
 ## Demo
 
- * https://opendata.dresden.de/informationsportal/#app/mainpage//Stadtb%C3%A4ume
-
-Link...
+`python3 ./01_download_wfs_to_shp.py --url https://kommisdd.dresden.de/net3/public/ogcsl.ashx?nodeid=1633&service=wfs&request=getcapabilities`
