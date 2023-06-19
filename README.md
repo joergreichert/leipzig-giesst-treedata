@@ -4,12 +4,28 @@ Please review the content of the `README.md` and adjust it to the project.
 
 ## Prerequisites
 
-tbd...
+- [Python 3.8](https://www.python.org/downloads/)
+- [pyenv](https://github.com/pyenv/pyenv) (optional)
+- [Miniconda](https://conda.io/projects/conda/en/latest/user-guide/install/linux.html#install-linux-silent)
+- [GeoPandas](https://geopandas.org/en/v0.7.0/install.html)
+
 
 ## Install & Development
 
-tbd...
+```
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+./Miniconda3-latest-Linux-x86_64.sh
+rm ./Miniconda3-latest-Linux-x86_64.sh
+conda update conda
+conda create -n treedata
+conda activate treedata
+conda config --env --add channels conda-forge
+conda config --env --set channel_priority strict
+conda install python=3 gdal geopandas
+```
 
 ## Demo
+
+ * https://opendata.dresden.de/informationsportal/#app/mainpage//Stadtb%C3%A4ume
 
 Link...
