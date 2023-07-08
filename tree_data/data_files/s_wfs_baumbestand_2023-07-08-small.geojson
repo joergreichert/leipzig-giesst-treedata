@@ -1,0 +1,27 @@
+{
+    "type": "FeatureCollection",
+    "features": [{
+            "id": "0",
+            "type": "Feature",
+            "properties": {
+                "gml_id": "L1261.00008100:004b56f7",
+                "name": "Alaunstra\u00dfe 40 - Kulturzentrum Scheune",
+                "standort_nr": 13,
+                "art_botanisch": "Carpinus betulus",
+                "art_deutsch": "Gew\u00f6hnliche Hainbuche",
+                "jalter": "23                            ",
+                "baumhoehe_akt": 4.0,
+                "stammdurchmesser_akt": 35.0,
+                "kronendurchmesser_akt": null,
+                "gis_x_utm": 412509.719,
+                "gis_y_utm": 5657910.7853,
+                "id": "00008100:004b56f7",
+                "aend_dat": "2019-09-03T13:53:58"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [13.751365642055333, 51.06604304806451]
+            }
+        }
+	]
+}

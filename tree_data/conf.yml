@@ -1,0 +1,45 @@
+# conf.yml
+database:
+  parameter-path: .env
+  data-table-name: trees
+
+new-data-paths:
+  - data_files/s_wfs_baumbestand_2023-07-08.geojson
+
+data-schema:
+  mapping:
+    id: gml_id
+    geom: geometry
+    strname: name
+    haus_nr: standort_nr
+    artbot: art_botanisch
+    artdtsch: art_deutsch
+    standort_nr: gml_id
+    baumhoehe: baumhoehe_akt
+    stammdurch: stammdurchmesser_akt
+    kronedurch: kronendurchmesser_akt
+    zuletztakt: aend_dat
+  calculated:
+    gattung:
+      input:
+        - art_botanisch
+    gattungdeutsch2:
+      input:
+        - art_botanisch
+    pflanzjahr:
+      input:
+        - jalter
+    stammumfg:
+      input:
+        - stammdurchmesser_akt
+    xcoord:
+      input:
+        - geometry
+    ycoord:
+      input:
+        - geometry
+    bezirk:
+      input:
+
+
+

@@ -3,27 +3,54 @@
 Please review the content of the `README.md` and adjust it to the project.
 
 ## Prerequisites
-
-- [Python 3.8](https://www.python.org/downloads/)
-- [pyenv](https://github.com/pyenv/pyenv) (optional)
-- [Miniconda](https://conda.io/projects/conda/en/latest/user-guide/install/linux.html#install-linux-silent)
-- [GeoPandas](https://geopandas.org/en/v0.7.0/install.html)
-
+ * [Python 3.11](https://www.python.org/downloads/)
 
 ## Install & Development
+
+### Windows
+#### QGIS
+ * https://qgis.org/en/site/forusers/download.html
+ * this will install also `OSGeo4W Shell` where gdal is available (check `gdalinfo --version`)
+ 
+### Local PostgreSQL
+ * Download latest (15.3) and install: https://www.enterprisedb.com/downloads/postgres-postgresql-downloads 
+ * Download latest PostGIS and install in before installed Postgres folder: https://download.osgeo.org/postgis/windows/pg15/ 
+ 
+ 
+#### Miniconda
+ * https://docs.conda.io/en/latest/miniconda.html#windows-installers
+ * Open `Anaconda prompt (miniconda3)` from Quick start
+
+### Linux
+#### Miniconda
 
 ```
 wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
 ./Miniconda3-latest-Linux-x86_64.sh
 rm ./Miniconda3-latest-Linux-x86_64.sh
+```
+
+### All
+#### Miniconda
+ * change to folder containing this locally checked out Git repo
+
+```
 conda update conda
 conda create -n treedata
 conda activate treedata
-conda config --env --add channels conda-forge
-conda config --env --set channel_priority strict
-conda install python=3 gdal geopandas requests
+conda install pip
+pip install -r requirements.txt
 ```
 
-## Demo
+### PyCharm
+ * Download Community Edition: https://www.jetbrains.com/pycharm/
+ * https://www.jetbrains.com/help/pycharm/conda-support-creating-conda-virtual-environment.html#create-a-conda-environment
+   * select existing environment `treedata`
+ * open new terminal to see activated conda environment `treedata`
 
-`python3 ./01_download_wfs_to_shp.py --url https://kommisdd.dresden.de/net3/public/ogcsl.ashx?nodeid=1633&service=wfs&request=getcapabilities`
+### Next steps
+ * copy `treedata/sample.env` to `treedata/.env`
+   * set your (locally) PostgreSQL connection data
+
+## Demo
+ * Download WFS file to geojson: `python .\get_data_from_wfs.py`
