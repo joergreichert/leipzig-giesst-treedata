@@ -4,21 +4,20 @@ database:
   data-table-name: trees
 
 new-data-paths:
-  - data_files/s_wfs_baumbestand_2023-07-08.geojson
+  - tree_data/data_files/s_wfs_baumbestand_2023-07-08-small.geojson
 
 data-schema:
   mapping:
-    id: gml_id
-    geom: geometry
-    strname: name
-    haus_nr: standort_nr
-    artbot: art_botanisch
-    artdtsch: art_deutsch
-    standort_nr: gml_id
-    baumhoehe: baumhoehe_akt
-    stammdurch: stammdurchmesser_akt
-    kronedurch: kronendurchmesser_akt
-    zuletztakt: aend_dat
+    geometry: geometry
+    name: strname
+    standort_nr: haus_nr
+    art_botanisch: artbot
+    art_deutsch: artdtsch
+    gml_id: standort_nr
+    baumhoehe_akt: baumhoehe
+    stammdurchmesser_akt: stammdurch
+    kronendurchmesser_akt: kronedurch
+    aend_dat: zuletztakt
   calculated:
     gattung:
       input:

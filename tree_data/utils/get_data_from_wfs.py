@@ -36,4 +36,4 @@ def convert_xml_to_geojson(infile_name, source_encoding, outfile_name):
 
 
 def read_geojson(infile_name):
-    gpd.read_file(infile_name, encoding='utf-8')
+    return gpd.read_file(infile_name, encoding='utf-8')

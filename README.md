@@ -53,4 +53,5 @@ pip install -r requirements.txt
    * set your (locally) PostgreSQL connection data
 
 ## Demo
- * Download WFS file to geojson: `python .\get_data_from_wfs.py`
+ * Download WFS file to geojson: `python ./tree_data/get_data_from_wfs.py`
+ * Process geojson: `python ./tree_data/main.py`
