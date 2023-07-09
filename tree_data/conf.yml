@@ -20,25 +20,25 @@ data-schema:
     aend_dat: zuletztakt
   calculated:
     gattung:
-      input:
+      inputs:
         - art_botanisch
-    gattungdeutsch2:
-      input:
+      function: lookup_genus
+    gattungdeutsch:
+      inputs:
         - art_botanisch
+      function: lookup_genus_german
     pflanzjahr:
-      input:
+      inputs:
         - jalter
+      function: calc_plant_year
     stammumfg:
-      input:
+      inputs:
         - stammdurchmesser_akt
-    xcoord:
-      input:
-        - geometry
-    ycoord:
-      input:
-        - geometry
+      function: calc_trunc_circumference
     bezirk:
-      input:
+      inputs:
+        - geometry
+      function: lookup_district
 
 
 

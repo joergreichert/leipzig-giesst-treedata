@@ -35,7 +35,12 @@ attribute_list = [
     'ycoord',
     'bezirk'
 ]
-transformed_trees = transform_new_tree_data(new_trees, attribute_list, schema_mapping_dict)
+transformed_trees = transform_new_tree_data(
+    new_trees=new_trees,
+    attribute_list=attribute_list,
+    schema_mapping_dict=schema_mapping_dict,
+    schema_calculated_dict=schema_calculated_dict
+)
 
 logger.info("Adding new trees to database...")
 for att in attribute_list:
