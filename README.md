@@ -15,7 +15,11 @@ Please review the content of the `README.md` and adjust it to the project.
 ### Local PostgreSQL
  * Download latest (15.3) and install: https://www.enterprisedb.com/downloads/postgres-postgresql-downloads 
  * Download latest PostGIS and install in before installed Postgres folder: https://download.osgeo.org/postgis/windows/pg15/ 
- 
+ * Connect to database and execute:
+```
+CREATE EXTENSION postgis;
+CREATE EXTENSION postgis_topology;
+```
  
 #### Miniconda
  * https://docs.conda.io/en/latest/miniconda.html#windows-installers
@@ -53,5 +57,6 @@ pip install -r requirements.txt
    * set your (locally) PostgreSQL connection data
 
 ## Demo
- * Download WFS file to geojson: `python ./tree_data/get_data_from_wfs.py`
+ * Download city shape WFS file to geojson: `python ./tree_data/get_city_shape_from_wfs.py`
+ * Download trees WFS file to geojson: `python ./tree_data/get_data_from_wfs.py`
  * Process geojson: `python ./tree_data/main.py`

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from tree_data.utils.get_data_from_wfs import get_wfs_request_url, convert_xml_to_geojson, download_wfs_to_xml
+from utils.get_data_from_wfs import get_wfs_request_url, convert_xml_to_geojson, download_wfs_to_xml
 
 dateFormat = "{:0>2d}"
 currentDay = dateFormat.format(datetime.now().day)
