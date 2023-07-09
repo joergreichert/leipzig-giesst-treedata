@@ -1,12 +1,21 @@
-from get_data_from_wfs import read_geojson
+import geopandas
+from shapely import Point
 
 
-def get_district(point, polygons):
+def __get_district__(point, polygons):
     result = point.within(polygons)
-    if result[0]:
-        return polygons['bez']
+    for index, res in enumerate(result):
+        if res:
+            return polygons['bez'][index]
     return None
 
-city_shape = read_geojson('./tree_data/data_files/city_shape-small.geojson')
-trees = read_geojson('./tree_data/data_files/s_wfs_baumbestand_2023-07-08-small.geojson')
-print(get_district(trees, city_shape))
+
+def get_district(x, y, city_shape):
+    return __get_district__(
+        geopandas.GeoSeries(
+            Point([x, y]),
+            crs=city_shape.crs,
+            index=city_shape.index
+        ),
+        city_shape
+    )

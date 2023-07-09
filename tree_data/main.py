@@ -45,7 +45,7 @@ transformed_trees = transform_new_tree_data(
 logger.info("Adding new trees to database...")
 for att in attribute_list:
     if att in transformed_trees:
-        print(transformed_trees[att])
+        logger.info(transformed_trees[att])
 
 db_engine = get_db_engine()
 add_to_db(db_engine, transformed_trees, 'trees')

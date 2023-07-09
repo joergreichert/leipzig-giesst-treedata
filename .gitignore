@@ -208,4 +208,5 @@ cmake-build-*/
 # IntelliJ
 out/
 
-tree_data/*.xml
+tree_data/**/*.xml
+tree_data/**/*.gfs

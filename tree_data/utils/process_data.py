@@ -1,12 +1,37 @@
 import logging
 from math import pi
+
+import pandas
 import yaml
 import datetime
+
+from .geo_within import get_district
+from .get_data_from_wfs import read_geojson
+
 
 current_year = int(datetime.datetime.now().date().strftime("%Y"))
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
+
+
+city_shape = read_geojson('./tree_data/data_files/city_shape-small.geojson')
+
+
+def read_config():
+    with open("./tree_data/conf.yml", 'r') as stream:
+        try:
+            conf = yaml.safe_load(stream)
+        except yaml.YAMLError as e:
+            logging.exception(f'Error occurred while reading the conf.yml: {e}')
+            raise
+
+    new_trees_paths_list = conf['new-data-paths']
+    schema_mapping_dict = conf['data-schema']['mapping']
+    schema_calculated_dict = conf['data-schema']['calculated']
+    database_dict = conf['database']
+
+    return new_trees_paths_list, schema_mapping_dict, schema_calculated_dict, database_dict
 
 
 def read_genus_mapping():
@@ -29,7 +54,6 @@ def lookup_genus(species):
 
 def lookup_genus_german(species):
     genus = lookup_genus(species)
-    print(genus_mapping)
     if genus in genus_mapping:
         return genus_mapping[genus]
     else:
@@ -38,14 +62,25 @@ def lookup_genus_german(species):
 
 
 def calc_plant_year(age):
-    return current_year - int(age)
+    try:
+        return current_year - int(age)
+    except:
+        return 'undefined'
 
 
 def calc_trunc_circumference(diameter):
-    return (pi * diameter).round(2)
+    try:
+        return (pi * diameter).round(2)
+    except:
+        return 'undefined'
+
 
 def lookup_district(geometry):
-    return None
+    return get_district(
+        geometry.x.round(5),
+        geometry.y.round(5),
+        city_shape
+    )
 
 
 calc_funs = {
@@ -57,27 +92,11 @@ calc_funs = {
 }
 
 
-def read_config():
-    with open("./tree_data/conf.yml", 'r') as stream:
-        try:
-            conf = yaml.safe_load(stream)
-        except yaml.YAMLError as e:
-            logging.exception(f'Error occurred while reading the conf.yml: {e}')
-            raise
-
-    new_trees_paths_list = conf['new-data-paths']
-    schema_mapping_dict = conf['data-schema']['mapping']
-    schema_calculated_dict = conf['data-schema']['calculated']
-    database_dict = conf['database']
-
-    return new_trees_paths_list, schema_mapping_dict, schema_calculated_dict, database_dict
-
-
 def transform_new_tree_data(new_trees, attribute_list, schema_mapping_dict, schema_calculated_dict):
     transformed_trees = new_trees.rename(columns=schema_mapping_dict)
 
     # transform gml_id here
-    transformed_trees['id'] = str(transformed_trees['standort_nr']).split(".")[1]
+    transformed_trees['id'] = transformed_trees['standort_nr'].str.split(pat=".").str[1]
 
     # drop not needed columns based on the columns of the old data
     for column in transformed_trees.columns:
@@ -88,7 +107,7 @@ def transform_new_tree_data(new_trees, attribute_list, schema_mapping_dict, sche
                 try:
                     transformed_trees = transformed_trees.drop([column], axis=1)
                 except:
-                    print(f'{column} not found')
+                    logger.error(f'{column} not found')
 
     duplicates_count = len(transformed_trees) - len(transformed_trees.drop_duplicates(subset=['id']))
 
@@ -108,7 +127,7 @@ def transform_new_tree_data(new_trees, attribute_list, schema_mapping_dict, sche
                 try:
                     transformed_trees[column] = transformed_trees[column].astype(int).astype(str)
                 except:
-                    print(f'{column} has type {transformed_trees[column].dtype}')
+                    logger.error(f'{column} has type {transformed_trees[column].dtype}')
     transformed_trees = transformed_trees.replace(['99999'], 'undefined')
     transformed_trees = transformed_trees.replace('', 'undefined')
 
@@ -122,11 +141,13 @@ def transform_new_tree_data(new_trees, attribute_list, schema_mapping_dict, sche
                 calc_fun = value['function']
                 for input_field in input_fields:
                     if input_field in new_trees:
-                        input_value = new_trees[input_field]
+                        input_values = new_trees[input_field]
                         if calc_fun in calc_funs:
-                            calculated = calc_funs[calc_fun](input_value[0])
-                            logger.info(f'Calculated {calculated} for input {input_value[0]} with function {calc_fun}')
-                            transformed_trees[key] = calculated
+                            for index, input_value in enumerate(input_values):
+                                calculated = calc_funs[calc_fun](input_value)
+                                #logger.info(f'Calculated {calculated} for input {input_value} with function {calc_fun}')
+                                calculatedSeries = pandas.Series([calculated], index=[index])
+                                transformed_trees[key] = calculatedSeries
                         else:
                             logger.info(f'Function {calc_fun} for calculation of {key} not among known functions')
                     else:
