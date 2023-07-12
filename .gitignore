@@ -210,3 +210,16 @@ out/
 
 tree_data/**/*.xml
 tree_data/**/*.gfs
+tree_data/**/*.cpg
+tree_data/**/*.dbf
+tree_data/**/*.prj
+tree_data/**/*.shp
+tree_data/**/*.shx
+weather_data/**/*.tar.gz
+weather_data/**/*.asc
+weather_data/**/*.tif
+weather_data/**/*.cpg
+weather_data/**/*.dbf
+weather_data/**/*.prj
+weather_data/**/*.shp
+weather_data/**/*.shx

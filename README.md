@@ -46,6 +46,18 @@ conda install pip
 pip install -r requirements.txt
 ```
 
+* install GDAL
+```
+conda install -c conda-forge gdal
+```
+
+* support for gdalwarp
+```
+conda install -c conda-forge krb5
+pip install gssapi
+gdalwarp -v
+```
+
 ### PyCharm
  * Download Community Edition: https://www.jetbrains.com/pycharm/
  * https://www.jetbrains.com/help/pycharm/conda-support-creating-conda-virtual-environment.html#create-a-conda-environment
