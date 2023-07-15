@@ -3,7 +3,7 @@ import os
 import subprocess
 from datetime import datetime
 
-path = "D:/git/gbl/musterstadt-giesst-treedata/weather_data/data_files/"
+path = "/src/weather_data/data_files/"
 
 # setting up logging
 logging.basicConfig()
@@ -52,7 +52,7 @@ for counter, file in enumerate(filelist):
     # after hours of trying to get this to work in pure python,
     # this has proven to be more reliable and efficient. sorry.
 
-    buffer_file = "D:/git/gbl/musterstadt-giesst-treedata/tree_data/data_files/buffer-small.shp"
+    buffer_file = "/city_shape_data/data_files/buffer-small.shp"
 
     # filter data
     cmdline = ['gdalwarp', input_file, output_file,

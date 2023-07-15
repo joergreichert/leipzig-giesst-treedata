@@ -120,7 +120,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
+resources/.env
 .venv
 env/
 venv/
@@ -208,18 +208,27 @@ cmake-build-*/
 # IntelliJ
 out/
 
-tree_data/**/*.xml
-tree_data/**/*.gfs
-tree_data/**/*.cpg
-tree_data/**/*.dbf
-tree_data/**/*.prj
-tree_data/**/*.shp
-tree_data/**/*.shx
-weather_data/**/*.tar.gz
-weather_data/**/*.asc
-weather_data/**/*.tif
-weather_data/**/*.cpg
-weather_data/**/*.dbf
-weather_data/**/*.prj
-weather_data/**/*.shp
-weather_data/**/*.shx
+/resources/trees/**/*.xml
+/resources/trees/**/*.gfs
+/resources/trees/**/*.cpg
+/resources/trees/**/*.dbf
+/resources/trees/**/*.prj
+/resources/trees/**/*.shp
+/resources/trees/**/*.shx
+/resources/trees/**/*.geojson
+/resources/radolan/**/*.tar.gz
+/resources/radolan/**/*.asc
+/resources/radolan/**/*.tif
+/resources/radolan/**/*.cpg
+/resources/radolan/**/*.dbf
+/resources/radolan/**/*.prj
+/resources/radolan/**/*.shp
+/resources/radolan/**/*.shx
+/resources/.env
+/resources/city_shape/**/*.cpg
+/resources/city_shape/**/*.dbf
+/resources/city_shape/**/*.shp
+/resources/city_shape/**/*.shx
+/resources/city_shape/**/*.geojson
+/resources/city_shape/**/*.gfs
+/resources/city_shape/**/*.xml

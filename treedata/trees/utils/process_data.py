@@ -6,8 +6,6 @@ import yaml
 import datetime
 
 from .geo_within import get_district
-from .get_data_from_wfs import read_geojson
-
 
 current_year = int(datetime.datetime.now().date().strftime("%Y"))
 
@@ -15,27 +13,22 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-city_shape = read_geojson('./tree_data/data_files/city_shape-small.geojson')
-
-
 def read_config():
-    with open("./tree_data/conf.yml", 'r') as stream:
+    with open("./resources/conf.yml", 'r') as stream:
         try:
             conf = yaml.safe_load(stream)
         except yaml.YAMLError as e:
             logging.exception(f'Error occurred while reading the conf.yml: {e}')
             raise
 
-    new_trees_paths_list = conf['new-data-paths']
     schema_mapping_dict = conf['data-schema']['mapping']
     schema_calculated_dict = conf['data-schema']['calculated']
-    database_dict = conf['database']
 
-    return new_trees_paths_list, schema_mapping_dict, schema_calculated_dict, database_dict
+    return schema_mapping_dict, schema_calculated_dict
 
 
 def read_genus_mapping():
-    with open("./tree_data/genus.yml", 'r', encoding='utf-8') as stream:
+    with open("./resources/genus.yml", 'r', encoding='utf-8') as stream:
         try:
             conf = yaml.safe_load(stream)
         except yaml.YAMLError as e:
@@ -75,7 +68,7 @@ def calc_trunc_circumference(diameter):
         return 'undefined'
 
 
-def lookup_district(geometry):
+def lookup_district(geometry, city_shape):
     return get_district(
         geometry.x.round(5),
         geometry.y.round(5),
@@ -92,7 +85,7 @@ calc_funs = {
 }
 
 
-def transform_new_tree_data(new_trees, attribute_list, schema_mapping_dict, schema_calculated_dict):
+def transform_new_tree_data(new_trees, attribute_list, schema_mapping_dict, schema_calculated_dict, city_shape):
     transformed_trees = new_trees.rename(columns=schema_mapping_dict)
 
     # transform gml_id here
@@ -144,7 +137,10 @@ def transform_new_tree_data(new_trees, attribute_list, schema_mapping_dict, sche
                         input_values = new_trees[input_field]
                         if calc_fun in calc_funs:
                             for index, input_value in enumerate(input_values):
-                                calculated = calc_funs[calc_fun](input_value)
+                                if calc_fun == 'lookup_district':
+                                    calculated = calc_funs[calc_fun](input_value, city_shape)
+                                else:
+                                    calculated = calc_funs[calc_fun](input_value)
                                 #logger.info(f'Calculated {calculated} for input {input_value} with function {calc_fun}')
                                 calculatedSeries = pandas.Series([calculated], index=[index])
                                 transformed_trees[key] = calculatedSeries

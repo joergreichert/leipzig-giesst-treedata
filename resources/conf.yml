@@ -1,14 +1,3 @@
-# conf.yml
-database:
-  parameter-path: .env
-  data-table-name: trees
-
-city-shape-path: ./tree_data/data_files/city_shape-small.geojson
-
-new-data-paths:
-  - tree_data/data_files/s_wfs_baumbestand_2023-07-08-small.geojson
-#  - tree_data/data_files/s_wfs_baumbestand_2023-07-09.geojson
-
 data-schema:
   mapping:
     geometry: geometry

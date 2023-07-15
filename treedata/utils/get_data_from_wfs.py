@@ -27,12 +27,16 @@ def get_wfs_request_url(wfs_url):
 def download_wfs_to_xml(wfs_url, source_encoding, outfile_name):
     logger.info('Request WFS from', wfs_url)
     r = get(wfs_url)
-    with open(outfile_name, 'w', encoding=source_encoding) as fd:
+    with open(f"{outfile_name}.xml", 'w', encoding=source_encoding) as fd:
         fd.write(r.text)
 
 
 def convert_xml_to_geojson(infile_name, source_encoding, outfile_name):
-    data = gpd.read_file(infile_name, encoding=source_encoding)
+    data = gpd.read_file(f"{infile_name}.xml", encoding=source_encoding)
+    store_as_geojson(data, outfile_name)
+
+
+def store_as_geojson(data, outfile_name):
     geojson_str = data.to_json(to_wgs84=True)
     with open(f"{outfile_name}.geojson", 'w', encoding='utf-8') as fd:
         fd.write(geojson_str)

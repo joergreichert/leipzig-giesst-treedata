@@ -69,6 +69,7 @@ gdalwarp -v
    * set your (locally) PostgreSQL connection data
 
 ## Demo
- * Download city shape WFS file to geojson: `python ./tree_data/get_city_shape_from_wfs.py`
- * Download trees WFS file to geojson: `python ./tree_data/get_data_from_wfs.py`
- * Process geojson: `python ./tree_data/main.py`
+ * Download city shape WFS file to geojson: `python ./treedata/main.py city_shape`
+ * Download trees WFS file to geojson: `python ./treedata/main.py trees`
+ * Process geojson: ` python ./treedata/main.py trees_process
+`
