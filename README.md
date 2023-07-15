@@ -65,11 +65,14 @@ gdalwarp -v
  * open new terminal to see activated conda environment `treedata`
 
 ### Next steps
- * copy `treedata/sample.env` to `treedata/.env`
+ * copy `resources/sample.env` to `resources/.env`
    * set your (locally) PostgreSQL connection data
 
 ## Demo
  * Download city shape WFS file to geojson: `python ./treedata/main.py city_shape`
+   * complete: `python ./treedata/main.py city_shape --wfs-url <WFS-URL> --source-encoding iso-8859-1 --xml-file-name wfs --geojson-file-name city-shape --skip-download-wfs-xml --skip-convert-to-geojson`
  * Download trees WFS file to geojson: `python ./treedata/main.py trees`
- * Process geojson: ` python ./treedata/main.py trees_process
+   * complete: `python ./treedata/main.py trees --wfs-url <WFS-URL> --source-encoding iso-8859-1 --xml-file-name wfs --geojson-file-name trees --skip-download-wfs-xml --skip-convert-to-geojson`
+ * Process geojson: `python ./treedata/main.py trees_process
+   * complete: `python ./treedata/main.py trees_process --city-shape-geojson-file-name city_shape --trees-geojson-file-name trees --geojson-file-name trees-transformed --database-table-name trees_tmp --skip-transform --skip-store-as-geojson --skip-upload-to-db`
 `

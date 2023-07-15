@@ -28,7 +28,6 @@ attribute_list = [
     'bezirk'
 ]
 
-source_encoding_default = 'ISO-8859-1'
 geojson_file_name_default = 'trees-transformed'
 database_table_name_default = 'trees_tmp'
 
@@ -39,8 +38,6 @@ def configure_trees_process_args(parser=argparse.ArgumentParser(description='Tra
     parser.add_argument('-t', '--trees-geojson-file-name', dest='trees_file_name', action='store',
                         help='Provide GeoJSON file name of tress data to use',
                         default='s_wfs_baumbestand_2023-07-08-small')
-    parser.add_argument('-e', '--source-encoding', dest='source_encoding', action='store', help='Provide WFS Encoding',
-                        default=source_encoding_default)
     parser.add_argument('-j', '--geojson-file-name', dest='geojson_file_name', action='store',
                         help='Provide file name to store GeoJSON file locally',
                         default=geojson_file_name_default)
@@ -72,8 +69,10 @@ def handle_trees_process(args):
     else:
         transformed_trees = read_geojson(f"./resources/trees/{args.geojson_file_name}.geojson")
 
-    if not args.skip_store_as_geojson:
-        store_as_geojson(transformed_trees, f"./resources/trees/{args.geojson_file_name}.geojson")
+    #if not args.skip_store_as_geojson:
+    #    if 'zuletztakt' in transformed_trees:
+    #        transformed_trees['zuletztakt'] = transformed_trees['zuletztakt'].dt.strftime('%Y%m%d%H%M%S')
+        #store_as_geojson(transformed_trees, f"./resources/trees/{args.geojson_file_name}.geojson")
 
     #for att in attribute_list:
     #    if att in transformed_trees:
