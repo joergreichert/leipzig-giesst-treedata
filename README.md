@@ -75,4 +75,5 @@ gdalwarp -v
    * complete: `python ./treedata/main.py trees --wfs-url <WFS-URL> --source-encoding iso-8859-1 --xml-file-name wfs --geojson-file-name trees --skip-download-wfs-xml --skip-convert-to-geojson`
  * Process geojson: `python ./treedata/main.py trees_process
    * complete: `python ./treedata/main.py trees_process --city-shape-geojson-file-name city_shape --trees-geojson-file-name trees --geojson-file-name trees-transformed --database-table-name trees_tmp --skip-transform --skip-store-as-geojson --skip-upload-to-db`
-`
+   * store as file only: `python ./treedata/main.py trees_process --city-shape-geojson-file-name city_shape --skip-upload-to-db --trees-geojson-file-name s_wfs_baumbestand_2023-07-15`
+   * store in db only: `python ./treedata/main.py trees_process --skip-transform --skip-store-as-geojson --trees-geojson-file-name trees_transformed --database-table-name trees_tmp`

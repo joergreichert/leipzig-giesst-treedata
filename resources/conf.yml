@@ -13,23 +13,23 @@ data-schema:
   calculated:
     gattung:
       inputs:
-        - art_botanisch
+        art_botanisch: species
       function: lookup_genus
     gattungdeutsch:
       inputs:
-        - art_botanisch
+        art_botanisch: species
       function: lookup_genus_german
     pflanzjahr:
       inputs:
-        - jalter
+        jalter: age
       function: calc_plant_year
     stammumfg:
       inputs:
-        - stammdurchmesser_akt
+        stammdurchmesser_akt: diameter
       function: calc_trunc_circumference
     bezirk:
       inputs:
-        - geometry
+        geometry: geometry
       function: lookup_district
 
 

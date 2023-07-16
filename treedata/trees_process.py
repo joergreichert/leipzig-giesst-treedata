@@ -1,5 +1,6 @@
 import argparse
 import logging
+import pandas as pd
 from utils.get_data_from_wfs import read_geojson, store_as_geojson
 from utils.interact_with_database import get_db_engine, add_to_db
 from trees.utils.process_data import read_config, transform_new_tree_data
@@ -69,14 +70,19 @@ def handle_trees_process(args):
     else:
         transformed_trees = read_geojson(f"./resources/trees/{args.geojson_file_name}.geojson")
 
-    #if not args.skip_store_as_geojson:
-    #    if 'zuletztakt' in transformed_trees:
-    #        transformed_trees['zuletztakt'] = transformed_trees['zuletztakt'].dt.strftime('%Y%m%d%H%M%S')
-        #store_as_geojson(transformed_trees, f"./resources/trees/{args.geojson_file_name}.geojson")
-
-    #for att in attribute_list:
-    #    if att in transformed_trees:
-    #        logger.info(transformed_trees[att])
+    if not args.skip_store_as_geojson:
+        if 'zuletztakt' in transformed_trees:
+            def try_date_to_str(value):
+                try:
+                    if type(value) is str:
+                        return value
+                    else:
+                        return value.strftime('%Y%m%d%H%M%S')
+                except Exception as e:
+                    logging.exception(f"cannot transform date to string {type(value)}: {e}")
+                    return None
+            transformed_trees['zuletztakt'] = transformed_trees['zuletztakt'].apply(try_date_to_str)
+        store_as_geojson(transformed_trees, f"./resources/trees/{args.geojson_file_name}")
 
     if not args.skip_upload_to_db:
         logger.info("Adding new trees to database...")

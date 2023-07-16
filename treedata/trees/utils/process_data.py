@@ -41,39 +41,62 @@ def read_genus_mapping():
 genus_mapping = read_genus_mapping()
 
 
-def lookup_genus(species):
-    return species.split(" ")[0]
-
-
-def lookup_genus_german(species):
-    genus = lookup_genus(species)
-    if genus in genus_mapping:
-        return genus_mapping[genus]
+def lookup_genus(inputs):
+    if 'species' in inputs:
+        return inputs['species'].split(" ")[0]
     else:
-        logger.info(f'{genus} not in genus mapping')
         return None
 
 
-def calc_plant_year(age):
-    try:
-        return current_year - int(age)
-    except:
-        return 'undefined'
+def lookup_genus_german(inputs):
+    if 'species' in inputs:
+        genus = lookup_genus(inputs)
+        if genus in genus_mapping:
+            return genus_mapping[genus]
+        else:
+            logger.info(f'{genus} not in genus mapping')
+            return None
+    else:
+        return None
 
 
-def calc_trunc_circumference(diameter):
-    try:
-        return (pi * diameter).round(2)
-    except:
-        return 'undefined'
+def calc_plant_year(inputs):
+    if 'age' in inputs:
+        try:
+            age_str = inputs['age']
+            if "keine Angabe" in age_str:
+                return None
+            else:
+                age_int = int(inputs['age'])
+                return int(current_year - age_int)
+        except:
+            logging.exception(f"cannot parse {inputs['age']} as number")
+            return None
+    else:
+        return None
 
 
-def lookup_district(geometry, city_shape):
-    return get_district(
-        geometry.x.round(5),
-        geometry.y.round(5),
-        city_shape
-    )
+def calc_trunc_circumference(inputs):
+    if 'diameter' in inputs:
+        try:
+            diameter_float = float(inputs['diameter'])
+            return round(pi * diameter_float, 2)
+        except:
+            return None
+    else:
+        return None
+
+
+def lookup_district(inputs):
+    if 'geometry' in inputs and 'city_shape' in inputs:
+        geometry = inputs['geometry']
+        return get_district(
+            geometry.x.round(5),
+            geometry.y.round(5),
+            inputs['city_shape']
+        )
+    else:
+        return None
 
 
 calc_funs = {
@@ -121,8 +144,8 @@ def transform_new_tree_data(new_trees, attribute_list, schema_mapping_dict, sche
                     transformed_trees[column] = transformed_trees[column].astype(int).astype(str)
                 except:
                     logger.error(f'{column} has type {transformed_trees[column].dtype}')
-    transformed_trees = transformed_trees.replace(['99999'], 'undefined')
-    transformed_trees = transformed_trees.replace('', 'undefined')
+    transformed_trees = transformed_trees.replace(['99999'], None)
+    transformed_trees = transformed_trees.replace('', None)
 
     transformed_trees['lng'] = transformed_trees.geometry.y.round(5).astype(str)
     transformed_trees['lat'] = transformed_trees.geometry.x.round(5).astype(str)
@@ -132,22 +155,21 @@ def transform_new_tree_data(new_trees, attribute_list, schema_mapping_dict, sche
             input_fields = value['inputs']
             if 'function' in value:
                 calc_fun = value['function']
-                for input_field in input_fields:
-                    if input_field in new_trees:
-                        input_values = new_trees[input_field]
-                        if calc_fun in calc_funs:
-                            for index, input_value in enumerate(input_values):
+                if calc_fun in calc_funs:
+                    def calculate_fun(row):
+                        inputs = {}
+                        for input_field in input_fields:
+                            if input_field in row:
+                                inputs[input_fields[input_field]] = row[input_field]
                                 if calc_fun == 'lookup_district':
-                                    calculated = calc_funs[calc_fun](input_value, city_shape)
-                                else:
-                                    calculated = calc_funs[calc_fun](input_value)
-                                #logger.info(f'Calculated {calculated} for input {input_value} with function {calc_fun}')
-                                calculatedSeries = pandas.Series([calculated], index=[index])
-                                transformed_trees[key] = calculatedSeries
-                        else:
-                            logger.info(f'Function {calc_fun} for calculation of {key} not among known functions')
-                    else:
-                        logger.info(f'Input field {input_field} for calculation of {key} not among known columns')
+                                    inputs['city_shape'] = city_shape
+                                return calc_funs[calc_fun](inputs)
+                            else:
+                                logger.info(f'Field {input_field} for calculation of {key} not among known columns')
+                                return None
+                    transformed_trees[key] = new_trees.apply(lambda row: calculate_fun(row), axis=1)
+                else:
+                    logger.info(f'Function {calc_fun} for calculation of {key} not among known functions')
             else:
                 logger.info(f'No function definition in calculation of {key}')
         else:

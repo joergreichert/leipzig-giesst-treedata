@@ -44,4 +44,4 @@ def store_as_geojson(data, outfile_name):
 
 
 def read_geojson(infile_name):
-    return gpd.read_file(infile_name, encoding='utf-8')
+    return gpd.read_file(infile_name, encoding='utf-8') # (..., rows=50) for testing
