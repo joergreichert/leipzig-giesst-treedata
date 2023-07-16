@@ -1,9 +1,8 @@
 import argparse
 import logging
-import pandas as pd
 from utils.get_data_from_wfs import read_geojson, store_as_geojson
 from utils.interact_with_database import get_db_engine, add_to_db
-from trees.utils.process_data import read_config, transform_new_tree_data
+from trees.process_data import read_config, transform_new_tree_data
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)

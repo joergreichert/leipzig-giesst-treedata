@@ -1,7 +1,6 @@
 import logging
 from math import pi
 
-import pandas
 import yaml
 import datetime
 

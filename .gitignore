@@ -232,3 +232,5 @@ out/
 /resources/city_shape/**/*.geojson
 /resources/city_shape/**/*.gfs
 /resources/city_shape/**/*.xml
+/resources/city_shape/**/*.prj
+/resources/radolan/radolan-joined.geojson
