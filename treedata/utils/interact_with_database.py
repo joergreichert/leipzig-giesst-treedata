@@ -22,7 +22,7 @@ def get_db_engine():
 
     conn_string = f"postgresql://{pg_username}:{pg_password}@{pg_server}:{pg_port}/{pg_database}"
 
-    return create_engine(conn_string, connect_args={"options": "-c statement_timeout=30000"})
+    return create_engine(conn_string, connect_args={"options": "-c statement_timeout=300000"})
 
 
 def add_to_db(engine, result, table_name):

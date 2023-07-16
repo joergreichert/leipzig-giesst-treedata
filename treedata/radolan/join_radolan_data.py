@@ -1,6 +1,5 @@
 import logging
 import os
-from shapely.wkt import dumps
 import pandas
 import geopandas
 from datetime import datetime
