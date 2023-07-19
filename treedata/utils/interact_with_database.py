@@ -11,7 +11,7 @@ logger.setLevel(logging.DEBUG)
 
 def get_db_engine():
     ROOT_DIR = os.path.abspath(os.curdir)
-    load_dotenv(f'{ROOT_DIR}/../resources/.env')
+    load_dotenv(f'{ROOT_DIR}/resources/.env')
     for env_var in ["PG_DB", "PG_PORT", "PG_USER", "PG_PASS", "PG_DB"]:
         if env_var not in os.environ:
             logger.error(f"Environmental variable {env_var} does not exist")

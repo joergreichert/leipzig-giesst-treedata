@@ -5,7 +5,7 @@ import gzip
 import shutil
 
 ROOT_DIR = os.path.abspath(os.curdir)
-path = f"{ROOT_DIR}/../resources/radolan/"
+path = f"{ROOT_DIR}/resources/radolan/"
 
 
 def extract_weather_data():

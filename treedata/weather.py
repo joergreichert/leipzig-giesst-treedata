@@ -58,7 +58,7 @@ def handle_weather(args):
     if not args.skip_polygonize_weather_data:
         polygonize_weather_data(args.city_shape_buffer_file_name)
     ROOT_DIR = os.path.abspath(os.curdir)
-    joined_path = f"{ROOT_DIR}/../resources/radolan/radolan-joined"
+    joined_path = f"{ROOT_DIR}/resources/radolan/radolan-joined"
     if not args.skip_join_radolan_data:
         radolan_data = join_radolan_data()
         store_as_geojson(radolan_data, joined_path)

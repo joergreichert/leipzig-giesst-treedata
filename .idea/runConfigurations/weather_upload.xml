@@ -8,7 +8,7 @@
     </envs>
     <option name="SDK_HOME" value="D:\Programme\miniconda3\envs\berlin-treedata\python.exe" />
     <option name="SDK_NAME" value="berlin-treedata" />
-    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/treedata" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
     <option name="IS_MODULE_SDK" value="false" />
     <option name="ADD_CONTENT_ROOTS" value="true" />
     <option name="ADD_SOURCE_ROOTS" value="true" />
