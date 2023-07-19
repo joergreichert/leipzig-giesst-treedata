@@ -1,5 +1,6 @@
 import argparse
 import logging
+import os
 from utils.get_data_from_wfs import read_geojson, store_as_geojson
 from utils.interact_with_database import get_db_engine, add_to_db
 from trees.process_data import read_config, transform_new_tree_data
@@ -54,11 +55,12 @@ def configure_trees_process_args(parser=argparse.ArgumentParser(description='Tra
 
 
 def handle_trees_process(args):
-    city_shape = read_geojson(f"./resources/city_shape/{args.city_shape_file_name}.geojson")
+    ROOT_DIR = os.path.abspath(os.curdir)
+    city_shape = read_geojson(f"{ROOT_DIR}/../resources/city_shape/{args.city_shape_file_name}.geojson")
     schema_mapping_dict, schema_calculated_dict = read_config()
 
     if not args.skip_transform:
-        new_trees = read_geojson(f"./resources/trees/{args.trees_file_name}.geojson")
+        new_trees = read_geojson(f"{ROOT_DIR}/../resources/trees/{args.trees_file_name}.geojson")
         transformed_trees = transform_new_tree_data(
             new_trees=new_trees,
             attribute_list=attribute_list,
@@ -67,7 +69,7 @@ def handle_trees_process(args):
             city_shape=city_shape
         )
     else:
-        transformed_trees = read_geojson(f"./resources/trees/{args.geojson_file_name}.geojson")
+        transformed_trees = read_geojson(f"{ROOT_DIR}/../resources/trees/{args.geojson_file_name}.geojson")
 
     if not args.skip_store_as_geojson:
         if 'zuletztakt' in transformed_trees:
@@ -81,7 +83,7 @@ def handle_trees_process(args):
                     logging.exception(f"cannot transform date to string {type(value)}: {e}")
                     return None
             transformed_trees['zuletztakt'] = transformed_trees['zuletztakt'].apply(try_date_to_str)
-        store_as_geojson(transformed_trees, f"./resources/trees/{args.geojson_file_name}")
+        store_as_geojson(transformed_trees, f"{ROOT_DIR}/../resources/trees/{args.geojson_file_name}")
 
     if not args.skip_upload_to_db:
         logger.info("Adding new trees to database...")

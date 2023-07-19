@@ -1,3 +1,4 @@
+import os
 import logging
 from math import pi
 
@@ -13,7 +14,8 @@ logger.setLevel(logging.DEBUG)
 
 
 def read_config():
-    with open("./resources/conf.yml", 'r') as stream:
+    ROOT_DIR = os.path.abspath(os.curdir)
+    with open(f"{ROOT_DIR}/../resources/conf.yml", 'r') as stream:
         try:
             conf = yaml.safe_load(stream)
         except yaml.YAMLError as e:
@@ -27,7 +29,8 @@ def read_config():
 
 
 def read_genus_mapping():
-    with open("./resources/genus.yml", 'r', encoding='utf-8') as stream:
+    ROOT_DIR = os.path.abspath(os.curdir)
+    with open(f"{ROOT_DIR}/../resources/genus.yml", 'r', encoding='utf-8') as stream:
         try:
             conf = yaml.safe_load(stream)
         except yaml.YAMLError as e:

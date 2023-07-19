@@ -3,9 +3,10 @@ import os
 import subprocess
 from datetime import datetime
 
-path = "./resources/radolan/"
+ROOT_DIR = os.path.abspath(os.curdir)
+path = f"{ROOT_DIR}/../resources/radolan/"
 last_received = datetime.strptime("1970-01-01 01:00:00", '%Y-%m-%d %H:%M:%S')
-buffer_file_folder = "./resources/city_shape"
+buffer_file_folder = "{ROOT_DIR}/../resources/city_shape"
 
 
 def polygonize_weather_data(buffer_file_name):

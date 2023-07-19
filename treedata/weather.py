@@ -1,3 +1,4 @@
+import os
 import argparse
 
 from radolan.buffer_city_shape import create_buffered_city_shape
@@ -6,6 +7,7 @@ from radolan.extract_weather_data import extract_weather_data
 from radolan.polygonize_weather_data import polygonize_weather_data
 from radolan.join_radolan_data import join_radolan_data
 from radolan.upload_radolan import upload_radolan_data
+from radolan.create_radolan_schemas import create_radolan_schema
 from utils.interact_with_database import get_db_engine
 from utils.get_data_from_wfs import store_as_geojson, read_geojson
 
@@ -55,7 +57,8 @@ def handle_weather(args):
         extract_weather_data()
     if not args.skip_polygonize_weather_data:
         polygonize_weather_data(args.city_shape_buffer_file_name)
-    joined_path = f"./resources/radolan/radolan-joined"
+    ROOT_DIR = os.path.abspath(os.curdir)
+    joined_path = f"{ROOT_DIR}/../resources/radolan/radolan-joined"
     if not args.skip_join_radolan_data:
         radolan_data = join_radolan_data()
         store_as_geojson(radolan_data, joined_path)
@@ -63,4 +66,5 @@ def handle_weather(args):
         radolan_data = read_geojson(f"{joined_path}.geojson")
     if not args.skip_upload_radolan_data:
         db_engine = get_db_engine()
+        create_radolan_schema(db_engine)
         upload_radolan_data(db_engine, radolan_data)

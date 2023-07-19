@@ -4,7 +4,8 @@ import pandas
 import geopandas
 from datetime import datetime
 
-path = "./resources/radolan"
+ROOT_DIR = os.path.abspath(os.curdir)
+path = f"{ROOT_DIR}/../resources/radolan"
 
 
 def join_radolan_data():

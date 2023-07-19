@@ -4,6 +4,7 @@ from datetime import datetime
 from datetime import timedelta
 import urllib.request
 
+ROOT_DIR = os.path.abspath(os.curdir)
 
 def download_weather_data(start_days_offset, end_days_offset):
     # get last day of insert
@@ -13,7 +14,7 @@ def download_weather_data(start_days_offset, end_days_offset):
     date = datetime.combine(last_date, datetime.min.time())
 
     # create a temporary folder to store the downloaded DWD data
-    path = "./resources/radolan/"
+    path = f"{ROOT_DIR}/../resources/radolan/"
     if not os.path.isdir(path):
         os.mkdir(path)
 

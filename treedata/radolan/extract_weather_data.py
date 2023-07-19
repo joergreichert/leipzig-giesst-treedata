@@ -4,7 +4,8 @@ import tarfile
 import gzip
 import shutil
 
-path = "./resources/radolan/"
+ROOT_DIR = os.path.abspath(os.curdir)
+path = f"{ROOT_DIR}/../resources/radolan/"
 
 
 def extract_weather_data():
