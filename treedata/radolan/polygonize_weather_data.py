@@ -50,6 +50,7 @@ def polygonize_weather_data(buffer_file_name):
         # polygonize data
         shape_file = path + f"{file_name}.shp"
 
+        # remove cmd /c when not Windows
         cmdline = ['cmd', '/c', 'gdal_polygonize.py', output_file, "-f",
                    "ESRI Shapefile", shape_file, file_name, "MYFLD"]
         print(' '.join(cmdline))

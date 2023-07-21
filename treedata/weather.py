@@ -6,8 +6,10 @@ from radolan.download_weather_data import download_weather_data
 from radolan.extract_weather_data import extract_weather_data
 from radolan.polygonize_weather_data import polygonize_weather_data
 from radolan.join_radolan_data import join_radolan_data
-from radolan.upload_radolan import upload_radolan_data
+from radolan.upload_radolan import upload_radolan_data, purge_data_older_than_time_limit_days, purge_duplicates
 from radolan.create_radolan_schemas import create_radolan_schema
+from radolan.update_tree_radolan_days import get_weather_data_grid_cells, get_sorted_cleaned_grid_cells, \
+    update_tree_radolan_days
 from utils.interact_with_database import get_db_engine
 from utils.get_data_from_wfs import store_as_geojson, read_geojson
 
@@ -37,6 +39,8 @@ def configure_weather_args(parser=argparse.ArgumentParser(description='Process w
                         help='skip step of joining radolan shp files to geojson', default=False)
     parser.add_argument('--skip-upload-radolan-data', dest='skip_upload_radolan_data', action='store_true',
                         help='skip step of upload radolan geojson to DB', default=False)
+    parser.add_argument('--skip-update-tree-radolan-days', dest='skip_update_tree_radolan_days', action='store_true',
+                        help='skip step of updating trees with radolan days', default=False)
     parser.set_defaults(which='weather', func=handle_weather)
 
 
@@ -64,7 +68,16 @@ def handle_weather(args):
         store_as_geojson(radolan_data, joined_path)
     else:
         radolan_data = read_geojson(f"{joined_path}.geojson")
+    time_limit_days = 30
     if not args.skip_upload_radolan_data:
         db_engine = get_db_engine()
         create_radolan_schema(db_engine)
         upload_radolan_data(db_engine, radolan_data)
+        purge_data_older_than_time_limit_days(db_engine, time_limit_days)
+        purge_duplicates(db_engine)
+    if not args.skip_update_tree_radolan_days:
+        db_engine = get_db_engine()
+        grid = get_weather_data_grid_cells(engine=db_engine, time_limit_days=time_limit_days)
+        values = get_sorted_cleaned_grid_cells(grid, time_limit_days)
+        #update_statistics_db(filelist, db_engine, time_limit_days, last_received)
+        update_tree_radolan_days(db_engine, values)

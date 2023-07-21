@@ -6,6 +6,7 @@ import urllib.request
 
 ROOT_DIR = os.path.abspath(os.curdir)
 
+
 def download_weather_data(start_days_offset, end_days_offset):
     # get last day of insert
     last_date = datetime.now() + timedelta(days=-start_days_offset)
@@ -19,7 +20,7 @@ def download_weather_data(start_days_offset, end_days_offset):
         os.mkdir(path)
 
     while date <= end_date:
-        url = 'https://opendata.dwd.de/climate_environment/CDC/grids_germany/hourly/radolan/recent/asc/RW-{}.tar.gz'\
+        url = 'https://opendata.dwd.de/climate_environment/CDC/grids_germany/hourly/radolan/recent/asc/RW-{}.tar.gz' \
             .format(date.strftime("%Y%m%d"))
         url_split = url.split("/")
         dest_name = url_split[len(url_split) - 1]
