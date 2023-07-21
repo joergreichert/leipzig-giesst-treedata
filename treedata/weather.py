@@ -1,11 +1,15 @@
 import os
 import argparse
 
+from sqlalchemy import text
+import psycopg2
+import psycopg2.extras
+
 from radolan.buffer_city_shape import create_buffered_city_shape
 from radolan.download_weather_data import download_weather_data
 from radolan.extract_weather_data import extract_weather_data
 from radolan.polygonize_weather_data import polygonize_weather_data
-from radolan.join_radolan_data import join_radolan_data
+from radolan.join_radolan_data import join_radolan_data, get_radolan_geometry
 from radolan.upload_radolan import upload_radolan_data, purge_data_older_than_time_limit_days, purge_duplicates
 from radolan.create_radolan_schemas import create_radolan_schema
 from radolan.update_tree_radolan_days import get_weather_data_grid_cells, get_sorted_cleaned_grid_cells, \
@@ -75,6 +79,17 @@ def handle_weather(args):
     if not args.skip_upload_radolan_data:
         db_engine = get_db_engine()
         create_radolan_schema(db_engine)
+        radolan_geometry = get_radolan_geometry()
+        # TODO store in DB
+        #with db_engine.connect() as conn:
+        #    conn.begin()
+        #    for entry in radolan_geometry:
+        #        conn.execute(
+        #            text('INSERT INTO public.radolan_geometry("geometry", "centroid") VALUES (%s, %s)'),
+        #            [entry['geometry'], entry['centroid']]
+        #        )
+        #    conn.commit()
+        #radolan_geometry.to_postgis('radolan_geometry', db_engine, if_exists='replace', index=True, index_label='id')
         upload_radolan_data(db_engine, radolan_data)
         purge_data_older_than_time_limit_days(db_engine, TIME_LIMIT_DAYS)
         purge_duplicates(db_engine)

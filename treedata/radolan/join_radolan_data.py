@@ -8,6 +8,30 @@ ROOT_DIR = os.path.abspath(os.curdir)
 path = f"{ROOT_DIR}/resources/radolan"
 
 
+def get_radolan_geometry():
+    filelist = []
+    for (dirpath, dirnames, filenames) in os.walk(path):
+        for ffilename in filenames:
+            if "shp" in ffilename:
+                filelist.append(path + "/" + ffilename)
+
+    gdf = None
+    for counter, file in enumerate(filelist):
+        df = geopandas.read_file(file)
+        df = df.to_crs("epsg:3857")
+        if df['geometry'].count() > 0:
+            geo_series = geopandas.GeoSeries(data=df['geometry'])
+            centroid = geo_series.centroid
+            df['centroid'] = centroid
+            df = df.drop('MYFLD', axis=1)
+            if gdf is None:
+                gdf = df
+            else:
+                gdf = pandas.concat([gdf, df], ignore_index=True)
+    unique = gdf.drop_duplicates()
+    return unique
+
+
 def join_radolan_data():
     filelist = []
     for (dirpath, dirnames, filenames) in os.walk(path):
