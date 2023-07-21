@@ -3,6 +3,7 @@ from datetime import timedelta
 import logging
 import psycopg2
 import psycopg2.extras
+from sqlalchemy import text
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -15,7 +16,7 @@ logger.setLevel(logging.DEBUG)
 
 def get_weather_data_grid_cells(engine, time_limit_days):
     with engine.connect() as conn:
-        result = conn.execute(f'''
+        result = conn.execute(text(f'''
             SELECT 
                 radolan_geometry.id, 
                 ST_AsGeoJSON(radolan_geometry.geometry), 
@@ -25,7 +26,7 @@ def get_weather_data_grid_cells(engine, time_limit_days):
             JOIN radolan_data ON radolan_geometry.id = radolan_data.geom_id 
             WHERE radolan_data.measured_at > NOW() - INTERVAL '{time_limit_days} days' 
             GROUP BY radolan_geometry.id, radolan_geometry.geometry
-        ''')
+        '''))
         return result.fetchall()
 
 
@@ -61,13 +62,13 @@ def update_statistics_db(filelist, engine, time_limit_days, last_received):
         start_date = datetime.now() + timedelta(days=-time_limit_days)
         start_date = start_date.replace(hour=0, minute=50, second=0, microsecond=0)
         with engine.connect() as conn:
-            conn.execute(f'''
+            conn.execute(text(f'''
                 UPDATE radolan_harvester SET 
                     collection_date = {last_received}, 
                     start_date = {start_date}, 
                     end_date = {end_date} 
                 WHERE id = 1
-            ''')
+            '''))
 
 
 def update_tree_radolan_days(engine, values):
@@ -77,10 +78,10 @@ def update_tree_radolan_days(engine, values):
             conn.begin()
             psycopg2.extras.execute_batch(
                 conn,
-                '''
+                text('''
                     UPDATE trees SET radolan_days = %s, radolan_sum = %s 
                     WHERE ST_CoveredBy(geom, ST_SetSRID(ST_GeomFromGeoJSON(%s), 4326))
-                ''',
+                '''),
                 values
             )
             conn.commit()
@@ -94,13 +95,13 @@ def update_tree_radolan_days(engine, values):
             conn.begin()
             psycopg2.extras.execute_batch(
                 conn,
-                '''
+                text('''
                     UPDATE trees SET radolan_days = %s, radolan_sum = %s 
                     WHERE trees.radolan_sum IS NULL 
                     AND ST_CoveredBy(geom, 
                         ST_Buffer(ST_SetSRID(ST_GeomFromGeoJSON(%s), 4326), 0.00005)
                     )
-                ''',
+                '''),
                 values
             )
             conn.commit()

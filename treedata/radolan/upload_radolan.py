@@ -18,21 +18,20 @@ def upload_radolan_data(engine, radolan_data):
             FROM radolan_geometry JOIN radolan_temp 
             ON ST_WithIn(radolan_geometry.centroid, radolan_temp.geometry)       
         '''))
-        engine.commit()
 
 
 def purge_data_older_than_time_limit_days(engine, time_limit_days):
     with engine.connect() as conn:
-        conn.execute(f'''
+        conn.execute(text(f'''
             DELETE FROM radolan_data 
             WHERE measured_at < NOW() - INTERVAL '{time_limit_days} days'
-        ''')
+        '''))
 
 
 def purge_duplicates(engine):
     with engine.connect() as conn:
-        conn.execute('''
+        conn.execute(text('''
             DELETE FROM radolan_data AS a USING radolan_data AS b 
             WHERE a.id < b.id AND a.geom_id = b.geom_id 
             AND a.measured_at = b.measured_at
-        ''')
+        '''))

@@ -9,9 +9,12 @@ from radolan.join_radolan_data import join_radolan_data
 from radolan.upload_radolan import upload_radolan_data, purge_data_older_than_time_limit_days, purge_duplicates
 from radolan.create_radolan_schemas import create_radolan_schema
 from radolan.update_tree_radolan_days import get_weather_data_grid_cells, get_sorted_cleaned_grid_cells, \
-    update_tree_radolan_days
+    update_tree_radolan_days, update_statistics_db
 from utils.interact_with_database import get_db_engine
 from utils.get_data_from_wfs import store_as_geojson, read_geojson
+
+ROOT_DIR = os.path.abspath(os.curdir)
+TIME_LIMIT_DAYS = 30
 
 
 def configure_weather_args(parser=argparse.ArgumentParser(description='Process weather data')):
@@ -20,9 +23,9 @@ def configure_weather_args(parser=argparse.ArgumentParser(description='Process w
     parser.add_argument('--end-days-offset', dest='end_days_offset', action='store',
                         help='number of days from today in past to stop downloading radolan data', default=1)
     parser.add_argument('--city-shape-geojson-file-name', dest='city_shape_file_name', action='store',
-                        help='Provide GeoJSON file name of city shape to use', default='city_shape-small')
+                        help='Provide GeoJSON file name of city shape to use', default='city_shape')
     parser.add_argument('--city-shape-buffer-file-name', dest='city_shape_buffer_file_name', action='store',
-                        help='file name to store buffered city shape under', default='city_shape-small-buffered')
+                        help='file name to store buffered city shape under', default='city_shape-buffered')
     parser.add_argument('--city-shape-buffer', dest='city_shape_buffer', action='store',
                         help='buffer to apply for buffering city shape', default=2000)
     parser.add_argument('--city-shape-simplify', dest='city_shape_simplify', action='store',
@@ -49,35 +52,34 @@ def handle_weather(args):
         create_buffered_city_shape(
             input_file_name=args.city_shape_file_name,
             output_file_name=args.city_shape_buffer_file_name,
-            buffer=args.city_shape_buffer,
-            simplify_factor=args.city_shape_simplify
+            buffer_radius=args.city_shape_buffer,
+            simplify_tolerance=args.city_shape_simplify
         )
     if not args.skip_download_weather_data:
         download_weather_data(
-            start_days_offset=args.start_days_offset,
-            end_days_offset=args.end_days_offset,
+            start_days_offset=int(args.start_days_offset),
+            end_days_offset=int(args.end_days_offset),
         )
     if not args.skip_unzip_weather_data:
         extract_weather_data()
     if not args.skip_polygonize_weather_data:
-        polygonize_weather_data(args.city_shape_buffer_file_name)
-    ROOT_DIR = os.path.abspath(os.curdir)
+        filelist, last_received = polygonize_weather_data(args.city_shape_buffer_file_name)
+        db_engine = get_db_engine()
+        update_statistics_db(filelist, db_engine, TIME_LIMIT_DAYS, last_received)
     joined_path = f"{ROOT_DIR}/resources/radolan/radolan-joined"
     if not args.skip_join_radolan_data:
         radolan_data = join_radolan_data()
         store_as_geojson(radolan_data, joined_path)
     else:
         radolan_data = read_geojson(f"{joined_path}.geojson")
-    time_limit_days = 30
     if not args.skip_upload_radolan_data:
         db_engine = get_db_engine()
         create_radolan_schema(db_engine)
         upload_radolan_data(db_engine, radolan_data)
-        purge_data_older_than_time_limit_days(db_engine, time_limit_days)
+        purge_data_older_than_time_limit_days(db_engine, TIME_LIMIT_DAYS)
         purge_duplicates(db_engine)
     if not args.skip_update_tree_radolan_days:
         db_engine = get_db_engine()
-        grid = get_weather_data_grid_cells(engine=db_engine, time_limit_days=time_limit_days)
-        values = get_sorted_cleaned_grid_cells(grid, time_limit_days)
-        #update_statistics_db(filelist, db_engine, time_limit_days, last_received)
+        grid = get_weather_data_grid_cells(engine=db_engine, time_limit_days=TIME_LIMIT_DAYS)
+        values = get_sorted_cleaned_grid_cells(grid, TIME_LIMIT_DAYS)
         update_tree_radolan_days(db_engine, values)

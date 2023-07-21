@@ -6,7 +6,7 @@ from utils.wfs_with_args import configure_wfs_args, handle_wfs
 wfs_url_base_default = 'https://kommisdd.dresden.de/net3/public/ogcsl.ashx?nodeid=188&service=' \
                        'wfs&request=getcapabilities'
 ROOT_DIR = os.path.abspath(os.curdir)
-base_folder = '$ROOT_DIR/resources/city_shape'
+base_folder = f'{ROOT_DIR}/resources/city_shape'
 xml_file_name_default = 'city_shape'
 geojson_file_name_default = 'city_shape'
 

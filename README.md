@@ -70,14 +70,14 @@ gdalwarp -v
 
 ## Demo
  * Download city shape WFS file to geojson: `python ./treedata/main.py city_shape`
-   * complete: `python ./treedata/main.py city_shape --wfs-url <WFS-URL> --source-encoding iso-8859-1 --xml-file-name wfs --geojson-file-name city-shape --skip-download-wfs-xml --skip-convert-to-geojson`
+   * complete: `python ./treedata/main.py city_shape --wfs-url <WFS-URL> --source-encoding iso-8859-1 --xml-file-name wfs --geojson-file-name city_shape --skip-download-wfs-xml --skip-convert-to-geojson`
  * Download trees WFS file to geojson: `python ./treedata/main.py trees`
    * complete: `python ./treedata/main.py trees --wfs-url <WFS-URL> --source-encoding iso-8859-1 --xml-file-name wfs --geojson-file-name trees --skip-download-wfs-xml --skip-convert-to-geojson`
  * Process geojson: `python ./treedata/main.py trees_process
    * complete: `python ./treedata/main.py trees_process --city-shape-geojson-file-name city_shape --trees-geojson-file-name trees --geojson-file-name trees-transformed --database-table-name trees_tmp --skip-transform --skip-store-as-geojson --skip-upload-to-db`
    * store as file only: `python ./treedata/main.py trees_process --city-shape-geojson-file-name city_shape --skip-upload-to-db --trees-geojson-file-name s_wfs_baumbestand_2023-07-15`
    * store in db only: `python ./treedata/main.py trees_process --skip-transform --skip-store-as-geojson --trees-geojson-file-name trees_transformed --database-table-name trees_tmp`
- * Process weather data: `python ./treedata/main.py weather`
+ * Process weather data (under Windows run these commands in Anaconda Prompt (miniconda3) console): `python ./treedata/main.py weather`
    * complete: `python ./treedata/main.py weather --start-days-offset 2 --end-days-offset 1 --city-shape-geojson-file-name city_shape-small --city-shape-buffer-file-name city_shape-small-buffered --city-shape-buffer 2000 --city-shape-simplify 1000`
    * only join radolan shp files: `python ./treedata/main.py weather --skip-download-weather-data --skip-unzip-weather-data --skip-buffer-city-shape --skip-polygonize-weather-data`
    * only upload radolan geojson file: `python ./treedata/main.py weather --skip-download-weather-data --skip-unzip-weather-data --skip-buffer-city-shape --skip-polygonize-weather-data --skip-join-radolan-data`

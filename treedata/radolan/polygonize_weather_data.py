@@ -5,8 +5,7 @@ from datetime import datetime
 
 ROOT_DIR = os.path.abspath(os.curdir)
 path = f"{ROOT_DIR}/resources/radolan/"
-last_received = datetime.strptime("1970-01-01 01:00:00", '%Y-%m-%d %H:%M:%S')
-buffer_file_folder = "{ROOT_DIR}/resources/city_shape"
+buffer_file_folder = f"{ROOT_DIR}/resources/city_shape"
 
 
 def polygonize_weather_data(buffer_file_name):
@@ -20,14 +19,14 @@ def polygonize_weather_data(buffer_file_name):
                     if ".asc" in ffilename:
                         filelist.append(dpath + "/" + ffilename)
 
-    last_received = None
+    last_received = datetime.strptime("1970-01-01 01:00:00", '%Y-%m-%d %H:%M:%S')
     for counter, file in enumerate(filelist):
         input_file = file
 
         file_split = file.split("/")
         file_name = file_split[len(file_split) - 1].split('.')[0]
         date_time_obj = datetime.strptime(file_name, 'RW_%Y%m%d-%H%M')
-        if last_received is None or date_time_obj > last_received:
+        if date_time_obj > last_received:
             last_received = date_time_obj
         logging.info("Processing: {} / {}".format(len(filelist), counter + 1))
 
@@ -56,3 +55,4 @@ def polygonize_weather_data(buffer_file_name):
         print(' '.join(cmdline))
         # gdal_polygonize.py D:/git/gbl/musterstadt-giesst-treedata/weather_data/data_files/temp.tif -f "ESRI Shapefile" D:/git/gbl/musterstadt-giesst-treedata/weather_data/data_files/temp.shp temp MYFLD
         subprocess.call(cmdline)
+    return filelist, last_received
