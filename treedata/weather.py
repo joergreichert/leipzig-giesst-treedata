@@ -5,14 +5,16 @@ from datetime import datetime, timedelta
 from radolan.buffer_city_shape import create_buffered_city_shape
 from radolan.download_weather_data import download_weather_data
 from radolan.extract_weather_data import extract_weather_data
-from radolan.polygonize_weather_data import polygonize_weather_data
+from radolan.polygonize_weather_data import polygonize_weather_data, polygonize_asc_file
 from radolan.join_radolan_data import join_radolan_data
-from radolan.upload_radolan import upload_radolan_data, purge_data_older_than_time_limit_days, purge_duplicates
+from radolan.upload_radolan import upload_radolan_data, purge_data_older_than_time_limit_days, purge_duplicates, \
+    update_radolan_geometry, exist_radolan_geometry
 from radolan.create_radolan_schemas import create_radolan_schema
 from radolan.update_tree_radolan_days import get_weather_data_grid_cells, get_sorted_cleaned_grid_cells, \
     update_tree_radolan_days, update_statistics_db, get_sorted_cleaned_grid
 from radolan.write_radolan_geojsons import write_radolan_geojsons, get_radolan_files_for_upload
 from radolan.write_radolan_csvs import write_radolan_csvs
+from radolan.create_radolan_grid import create_radolon_grid
 from utils.mapbox_upload import get_mapbox_s3_data, notify_mapbox_upload
 from utils.gzip_file import gzip_files
 from utils.s3_client import create_s3_client, upload_files_to_s3
@@ -88,6 +90,19 @@ def handle_weather(args):
     if not args.skip_upload_radolan_data:
         db_engine = get_db_engine()
         create_radolan_schema(db_engine)
+        exists = exist_radolan_geometry(db_engine)
+        if not exists:
+            create_radolon_grid()
+            polygonize_asc_file(
+                buffer_file_name=args.city_shape_buffer_file_name,
+                input_file=f"{RADOLAN_PATH}grid-transform.asc",
+                output_file=f"{RADOLAN_PATH}grid-buffer.asc",
+                file_name="grid-transform"
+            )
+            update_radolan_geometry(
+                engine=db_engine,
+                radolan_grid_shape_path=f"{RADOLAN_PATH}grid-transform.shp",
+            )
         upload_radolan_data(db_engine, radolan_data)
         purge_data_older_than_time_limit_days(db_engine, TIME_LIMIT_DAYS)
         purge_duplicates(db_engine)

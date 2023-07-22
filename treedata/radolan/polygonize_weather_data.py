@@ -8,6 +8,28 @@ path = f"{ROOT_DIR}/resources/radolan/"
 buffer_file_folder = f"{ROOT_DIR}/resources/city_shape"
 
 
+def polygonize_asc_file(buffer_file_name, input_file, output_file, file_name):
+    buffer_file = f"{buffer_file_folder}/{buffer_file_name}.shp"
+
+    # filter data
+    cmdline = ['cmd', '/c', 'gdalwarp', input_file, output_file,
+               "-s_srs", '+proj=stere +lon_0=10.0 +lat_0=90.0 +lat_ts=60.0 +a=6370040 +b=6370040 +units=m',
+               "-t_srs", '+proj=stere +lon_0=10.0 +lat_0=90.0 +lat_ts=60.0 +a=6370040 +b=6370040 +units=m',
+               "-r", "near", "-of", "GTiff", "-cutline", buffer_file]
+    print(' '.join(cmdline))
+    subprocess.call(cmdline)
+
+    # polygonize data
+    shape_file = path + f"{file_name}.shp"
+
+    # remove cmd /c when not Windows
+    cmdline = ['cmd', '/c', 'gdal_polygonize.py', output_file, "-f",
+               "ESRI Shapefile", shape_file, file_name, "MYFLD"]
+    print(' '.join(cmdline))
+    # gdal_polygonize.py D:/git/gbl/musterstadt-giesst-treedata/weather_data/data_files/temp.tif -f "ESRI Shapefile" D:/git/gbl/musterstadt-giesst-treedata/weather_data/data_files/temp.shp temp MYFLD
+    subprocess.call(cmdline)
+
+
 def polygonize_weather_data(buffer_file_name):
     # collecting all the files that need importing in one list
     filelist = []
@@ -36,23 +58,6 @@ def polygonize_weather_data(buffer_file_name):
         # after hours of trying to get this to work in pure python,
         # this has proven to be more reliable and efficient. sorry.
 
-        buffer_file = f"{buffer_file_folder}/{buffer_file_name}.shp"
+        polygonize_asc_file(buffer_file_name, input_file, output_file, file_name)
 
-        # filter data
-        cmdline = ['cmd', '/c', 'gdalwarp', input_file, output_file,
-                   "-s_srs", '+proj=stere +lon_0=10.0 +lat_0=90.0 +lat_ts=60.0 +a=6370040 +b=6370040 +units=m',
-                   "-t_srs", '+proj=stere +lon_0=10.0 +lat_0=90.0 +lat_ts=60.0 +a=6370040 +b=6370040 +units=m',
-                   "-r", "near", "-of", "GTiff", "-cutline", buffer_file]
-        print(' '.join(cmdline))
-        subprocess.call(cmdline)
-
-        # polygonize data
-        shape_file = path + f"{file_name}.shp"
-
-        # remove cmd /c when not Windows
-        cmdline = ['cmd', '/c', 'gdal_polygonize.py', output_file, "-f",
-                   "ESRI Shapefile", shape_file, file_name, "MYFLD"]
-        print(' '.join(cmdline))
-        # gdal_polygonize.py D:/git/gbl/musterstadt-giesst-treedata/weather_data/data_files/temp.tif -f "ESRI Shapefile" D:/git/gbl/musterstadt-giesst-treedata/weather_data/data_files/temp.shp temp MYFLD
-        subprocess.call(cmdline)
     return filelist, last_received

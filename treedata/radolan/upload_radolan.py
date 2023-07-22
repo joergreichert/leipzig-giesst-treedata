@@ -1,19 +1,42 @@
+import geopandas
 from sqlalchemy import text
 import logging
 from shapely.wkt import loads, dumps
 import pandas
+import psycopg2
+import psycopg2.extras
 
 logger = logging.getLogger(__name__)
 
 
-def update_radolan_geometry(conn):
-    count = conn.execute(text('SELECT count(*) FROM public.radolan_geometry')).scalar()
-    if count == 0:
-        conn.execute(text('''
-            INSERT INTO radolan_geometry (geometry)
-            SELECT distinct(geometry) FROM radolan_temp     
-        '''))
-        conn.execute(text('UPDATE radolan_geometry SET centroid = ST_Centroid (geometry)'))
+def exist_radolan_geometry(engine):
+    with engine.connect() as conn:
+        count = conn.execute(text('SELECT count(*) FROM public.radolan_geometry')).scalar()
+        if count > 0:
+            return True
+    return False
+
+def update_radolan_geometry(engine, radolan_grid_shape_path):
+    df = geopandas.read_file(radolan_grid_shape_path)
+    df = df.to_crs("epsg:4326")
+    clean = df[(df['MYFLD'].notnull())]
+    if len(clean) > 0:
+        values = []
+        for index, row in clean.iterrows():
+            values.append([dumps(row.geometry, rounding_precision=5)])
+        with engine.connect() as conn:
+            conn.begin()
+            conn.execute("DELETE FROM public.radolan_geometry;")
+            psycopg2.extras.execute_batch(
+                conn,
+                text('''
+                    "INSERT INTO public.radolan_geometry (geometry) VALUES (ST_GeomFromText(%s, 4326));",
+                '''),
+                values
+            )
+            conn.commit()
+            conn.execute("UPDATE public.radolan_geometry SET centroid = ST_Centroid(geometry);")
+            conn.commit()
 
 
 def upload_radolan_data(engine, radolan_data):
@@ -22,7 +45,6 @@ def upload_radolan_data(engine, radolan_data):
     radolan_data['geometry'] = loads(dumps(radolan_data['geometry'], rounding_precision=5))
     radolan_data.to_postgis('radolan_temp', engine, if_exists='replace', index=False)
     with engine.connect() as conn:
-        update_radolan_geometry(conn)
         conn.execute(text('''
             INSERT INTO "public".radolan_data(geom_id, value, measured_at) 
             SELECT radolan_geometry.id, radolan_temp.value, radolan_temp.measured_at 
