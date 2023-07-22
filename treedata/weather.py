@@ -13,6 +13,7 @@ from radolan.update_tree_radolan_days import get_weather_data_grid_cells, get_so
     update_tree_radolan_days, update_statistics_db, get_sorted_cleaned_grid
 from radolan.write_radolan_geojsons import write_radolan_geojsons, get_radolan_files_for_upload
 from radolan.write_radolan_csvs import write_radolan_csvs
+from utils.mapbox_upload import get_mapbox_s3_data, notify_mapbox_upload
 from utils.gzip_file import gzip_files
 from utils.s3_client import create_s3_client, upload_files_to_s3
 from utils.interact_with_database import get_db_engine
@@ -54,6 +55,8 @@ def configure_weather_args(parser=argparse.ArgumentParser(description='Process w
                         help='skip step of radolan data geojson file generation and S3 upload', default=False)
     parser.add_argument('--skip-upload-csvs-to-s3', dest='skip_upload_csvs_to_s3', action='store_true',
                         help='skip step of radolan data CSV file generation and S3 upload', default=False)
+    parser.add_argument('--skip-upload-csvs-to-mapbox', dest='skip_upload_csvs_to_mapbox', action='store_true',
+                        help='skip step of radolan data CSV file Mapbox S3 upload', default=False)
     parser.set_defaults(which='weather', func=handle_weather)
 
 
@@ -105,20 +108,22 @@ def handle_weather(args):
         )
         values = get_sorted_cleaned_grid_cells(clean)
         update_tree_radolan_days(db_engine, values)
+    aws_access_key = os.getenv("ACCESS_KEY"),
+    aws_secret_key = os.getenv("SECRET_KEY")
+    s3_bucket_name = os.getenv("S3_BUCKET")
     if not args.skip_upload_geojsons_to_s3:
         file_path_to_file_name = get_radolan_files_for_upload(path=f"{RADOLAN_PATH}/")
         gzip_file_path_to_file_name = gzip_files(file_path_to_file_name)
         file_path_to_file_name_union = file_path_to_file_name | gzip_file_path_to_file_name
-        if False:
-            s3_client = create_s3_client(
-                aws_access_key=os.getenv("ACCESS_KEY"),
-                aws_secret_key=os.getenv("SECRET_KEY")
-            )
-            upload_files_to_s3(
-                s3_client=s3_client,
-                s3_bucket_name=os.getenv("S3_BUCKET"),
-                file_path_to_file_name=file_path_to_file_name_union
-            )
+        s3_client = create_s3_client(
+            aws_access_key=aws_access_key,
+            aws_secret_key=aws_secret_key
+        )
+        upload_files_to_s3(
+            s3_client=s3_client,
+            s3_bucket_name=s3_bucket_name,
+            file_path_to_file_name=file_path_to_file_name_union
+        )
     if not args.skip_upload_csvs_to_s3:
         db_engine = get_db_engine()
         file_path_to_file_name = write_radolan_csvs(
@@ -128,15 +133,39 @@ def handle_weather(args):
         )
         gzip_file_path_to_file_name = gzip_files(file_path_to_file_name)
         file_path_to_file_name_union = file_path_to_file_name | gzip_file_path_to_file_name
-        if False:
-            s3_client = create_s3_client(
-                aws_access_key=os.getenv("ACCESS_KEY"),
-                aws_secret_key=os.getenv("SECRET_KEY")
-            )
-            upload_files_to_s3(
-                s3_client=s3_client,
-                s3_bucket_name=os.getenv("S3_BUCKET"),
-                file_path_to_file_name=file_path_to_file_name_union
-            )
-
-
+        s3_client = create_s3_client(
+            aws_access_key=aws_access_key,
+            aws_secret_key=aws_secret_key
+        )
+        upload_files_to_s3(
+            s3_client=s3_client,
+            s3_bucket_name=s3_bucket_name,
+            file_path_to_file_name=file_path_to_file_name_union
+        )
+    if not args.skip_upload_csvs_to_mapbox:
+        mapbox_username = os.getenv("MAPBOXUSERNAME")
+        mapbox_token = os.getenv("MAPBOXTOKEN")
+        mapbox_s3_data = get_mapbox_s3_data(
+            mapbox_username=mapbox_username,
+            mapbox_token=mapbox_token
+        )
+        mapbox_s3_client = create_s3_client(
+            aws_access_key=mapbox_s3_data.aws_access_key_id,
+            aws_secret_key=mapbox_s3_data.aws_secret_access_key,
+            aws_session_token=mapbox_s3_data.aws_session_token
+        )
+        upload_files_to_s3(
+            s3_client=mapbox_s3_client,
+            s3_bucket_name=mapbox_s3_data.bucket_name,
+            file_path_to_file_name={
+                f"{RADOLAN_PATH}/trees-total.csv": mapbox_s3_data.file_name
+            }
+        )
+        mapbox_tileset = os.getenv("MAPBOXTILESET")
+        notify_mapbox_upload(
+            mapbox_username=mapbox_username,
+            mapbox_token=mapbox_token,
+            mapbox_s3_bucket_name=mapbox_s3_data.bucket_name,
+            mapbox_s3_file_name=mapbox_s3_data.file_name,
+            mapbox_tileset=mapbox_tileset
+        )
