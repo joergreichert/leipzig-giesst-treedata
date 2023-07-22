@@ -15,7 +15,7 @@ from radolan.update_tree_radolan_days import get_weather_data_grid_cells, get_so
 from radolan.write_radolan_geojsons import write_radolan_geojsons, get_radolan_files_for_upload
 from radolan.write_radolan_csvs import write_radolan_csvs
 from radolan.create_radolan_grid import create_radolon_grid
-from treedata.utils.supabase_storage import upload_files_to_supabase_storage
+from utils.supabase_storage import upload_files_to_supabase_storage
 from utils.mapbox_upload import get_mapbox_s3_data, notify_mapbox_upload
 from utils.gzip_file import gzip_files
 from utils.s3_client import create_s3_client, upload_files_to_s3

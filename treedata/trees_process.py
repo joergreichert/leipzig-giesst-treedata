@@ -1,6 +1,8 @@
 import argparse
 import logging
 import os
+
+from trees.sync_trees import sync_trees
 from utils.get_data_from_wfs import read_geojson, store_as_geojson
 from utils.interact_with_database import get_db_engine, add_to_db
 from trees.process_data import read_config, transform_new_tree_data
@@ -89,3 +91,8 @@ def handle_trees_process(args):
         logger.info("Adding new trees to database...")
         db_engine = get_db_engine()
         add_to_db(db_engine, transformed_trees, args.database_table_name)
+        sync_trees(
+            engine=db_engine,
+            original_tree_table='trees',
+            tmp_tree_table=args.database_table_name
+        )
