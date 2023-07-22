@@ -234,3 +234,7 @@ out/
 /resources/city_shape/**/*.xml
 /resources/city_shape/**/*.prj
 /resources/radolan/radolan-joined.geojson
+/resources/radolan/weather.geojson
+/resources/radolan/weather.geojson.gz
+/resources/radolan/weather_light.geojson
+/resources/radolan/weather_light.geojson.gz

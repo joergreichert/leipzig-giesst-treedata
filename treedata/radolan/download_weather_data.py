@@ -1,7 +1,6 @@
 import logging
 import os
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 import urllib.request
 
 ROOT_DIR = os.path.abspath(os.curdir)

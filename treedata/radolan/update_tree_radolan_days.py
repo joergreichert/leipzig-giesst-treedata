@@ -30,7 +30,7 @@ def get_weather_data_grid_cells(engine, time_limit_days):
         return result.fetchall()
 
 
-def get_sorted_cleaned_grid_cells(grid, time_limit_days):
+def get_sorted_cleaned_grid(grid, time_limit_days):
     clean = []
     for cell in grid:
         end_date = datetime.now() + timedelta(days=-1)
@@ -49,10 +49,18 @@ def get_sorted_cleaned_grid_cells(grid, time_limit_days):
                 clean_data.append(0)
             start_date += timedelta(hours=1)
         clean.append(clean_data)
-    values = []
-    for cellindex, cell in enumerate(grid):
-        values.append([clean[cellindex], sum(clean[cellindex]), cell[1]])
-    return values
+    return clean
+
+
+def get_sorted_cleaned_grid_cells(cleaned_grid):
+    cells = []
+    for cellindex, cell in enumerate(cleaned_grid):
+        cells.append([
+            cleaned_grid[cellindex],
+            sum(cleaned_grid[cellindex]),
+            cell[1]
+        ])
+    return cells
 
 
 def update_statistics_db(filelist, engine, time_limit_days, last_received):
