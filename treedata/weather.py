@@ -1,9 +1,6 @@
-import json
 import os
 import argparse
 from datetime import datetime, timedelta
-
-import pandas
 
 from radolan.buffer_city_shape import create_buffered_city_shape
 from radolan.download_weather_data import download_weather_data
@@ -14,7 +11,10 @@ from radolan.upload_radolan import upload_radolan_data, purge_data_older_than_ti
 from radolan.create_radolan_schemas import create_radolan_schema
 from radolan.update_tree_radolan_days import get_weather_data_grid_cells, get_sorted_cleaned_grid_cells, \
     update_tree_radolan_days, update_statistics_db, get_sorted_cleaned_grid
-from radolan.write_radolan_geojsons import write_radolan_geojsons, upload_radolan_files_to_s3
+from radolan.write_radolan_geojsons import write_radolan_geojsons, get_radolan_files_for_upload
+from radolan.write_radolan_csvs import write_radolan_csvs
+from utils.gzip_file import gzip_files
+from utils.s3_client import create_s3_client, upload_files_to_s3
 from utils.interact_with_database import get_db_engine
 from utils.get_data_from_wfs import store_as_geojson, read_geojson
 
@@ -52,6 +52,8 @@ def configure_weather_args(parser=argparse.ArgumentParser(description='Process w
                         help='skip step of updating trees with radolan days', default=False)
     parser.add_argument('--skip-upload-geojsons-to-s3', dest='skip_upload_geojsons_to_s3', action='store_true',
                         help='skip step of radolan data geojson file generation and S3 upload', default=False)
+    parser.add_argument('--skip-upload-csvs-to-s3', dest='skip_upload_csvs_to_s3', action='store_true',
+                        help='skip step of radolan data CSV file generation and S3 upload', default=False)
     parser.set_defaults(which='weather', func=handle_weather)
 
 
@@ -104,9 +106,37 @@ def handle_weather(args):
         values = get_sorted_cleaned_grid_cells(clean)
         update_tree_radolan_days(db_engine, values)
     if not args.skip_upload_geojsons_to_s3:
-        upload_radolan_files_to_s3(
-            path=f"{RADOLAN_PATH}/",
-            aws_access_key=os.getenv("ACCESS_KEY"),
-            aws_secret_key=os.getenv("SECRET_KEY"),
-            s3_bucket_name=os.getenv("S3_BUCKET")
+        file_path_to_file_name = get_radolan_files_for_upload(path=f"{RADOLAN_PATH}/")
+        gzip_file_path_to_file_name = gzip_files(file_path_to_file_name)
+        file_path_to_file_name_union = file_path_to_file_name | gzip_file_path_to_file_name
+        if False:
+            s3_client = create_s3_client(
+                aws_access_key=os.getenv("ACCESS_KEY"),
+                aws_secret_key=os.getenv("SECRET_KEY")
+            )
+            upload_files_to_s3(
+                s3_client=s3_client,
+                s3_bucket_name=os.getenv("S3_BUCKET"),
+                file_path_to_file_name=file_path_to_file_name_union
+            )
+    if not args.skip_upload_csvs_to_s3:
+        db_engine = get_db_engine()
+        file_path_to_file_name = write_radolan_csvs(
+            engine=db_engine,
+            time_limit_days=TIME_LIMIT_DAYS,
+            path=f"{RADOLAN_PATH}/"
         )
+        gzip_file_path_to_file_name = gzip_files(file_path_to_file_name)
+        file_path_to_file_name_union = file_path_to_file_name | gzip_file_path_to_file_name
+        if False:
+            s3_client = create_s3_client(
+                aws_access_key=os.getenv("ACCESS_KEY"),
+                aws_secret_key=os.getenv("SECRET_KEY")
+            )
+            upload_files_to_s3(
+                s3_client=s3_client,
+                s3_bucket_name=os.getenv("S3_BUCKET"),
+                file_path_to_file_name=file_path_to_file_name_union
+            )
+
+
