@@ -45,6 +45,7 @@ def delete_removed_trees(engine, original_tree_table, tmp_tree_table):
             )        
         '''))
         logging.info(f"Deleted {result.rowcount} trees.")
+        conn.commit()
 
 
 def insert_added_trees(engine, original_tree_table, tmp_tree_table):
@@ -58,54 +59,16 @@ def insert_added_trees(engine, original_tree_table, tmp_tree_table):
             )        
         '''))
         logging.info(f"Inserted {result.rowcount} trees.")
+        conn.commit()
 
 
 def updated_trees(engine, original_tree_table, tmp_tree_table):
-    time_ranges = [
-        {
-            "start": 2020,
-            "end": 2023
-        },
-        {
-            "start": 2015,
-            "end": 2020
-        },
-        {
-            "start": 2010,
-            "end": 2015
-        },
-        {
-            "start": 2005,
-            "end": 2010
-        },
-        {
-            "start": 2000,
-            "end": 2005
-        },
-        {
-            "start": 1990,
-            "end": 2000
-        },
-        {
-            "start": 1950,
-            "end": 1990
-        },
-        {
-            "start": 1500,
-            "end": 1900
-        },
-        {
-            "start": -1,
-            "end": -1
-        }
-    ]
     sql_update_str = f'''
         WITH subquery AS (
             SELECT B."id", B."lat", B."lng", B."artdtsch", B."artbot", B."gattungdeutsch", B."gattung", 
                    B."standortnr", B."strname", B."hausnr", B."pflanzjahr", B."stammumfg", 
                    B."kronedurch", B."baumhoehe", B."bezirk", B."geom", B."aend_dat" 
             FROM public."{tmp_tree_table}" AS B
-            WHERE B."pflanzjahr" = XXX
         )
         UPDATE public."{original_tree_table}" AS A
         SET 
@@ -128,20 +91,10 @@ def updated_trees(engine, original_tree_table, tmp_tree_table):
         FROM subquery AS B
         WHERE A."id" = B."id";
     '''
-    for time_range in time_ranges:
-        start = time_range["start"]
-        end = time_range["end"]
-        if start == -1:
-            info = 'Updated {count} trees with unknown plant year'
-            add_stmt = 'B."pflanzjahr IS NULL"'
-        else:
-            info = 'Updated {} trees with plant year between {} and {}'
-            add_stmt = f'B."pflanzjahr" > {start} AND B."pflanzjahr" <= {end}'
-        search = 'B."pflanzjahr" = XXX'
-        sql_update_str_adapted = sql_update_str.replace(search, add_stmt)
-        with engine.connect() as conn:
-            result = conn.execute(text(sql_update_str_adapted)).scalar()
-            logging.info(info.format(result.rowcount, start, end))
+    with engine.connect() as conn:
+        result = conn.execute(text(sql_update_str))
+        logging.info(f'Updated {result.rowcount} trees')
+        conn.commit()
 
 
 def sync_trees(engine, original_tree_table, tmp_tree_table):
