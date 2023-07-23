@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 from datetime import timedelta
 import logging
@@ -52,9 +53,9 @@ def get_sorted_cleaned_grid(grid, time_limit_days):
     return clean
 
 
-def get_sorted_cleaned_grid_cells(cleaned_grid):
+def get_sorted_cleaned_grid_cells(cleaned_grid, grid):
     cells = []
-    for cellindex, cell in enumerate(cleaned_grid):
+    for cellindex, cell in enumerate(grid):
         cells.append([
             cleaned_grid[cellindex],
             sum(cleaned_grid[cellindex]),
@@ -78,6 +79,7 @@ def update_statistics_db(filelist, engine, time_limit_days, last_received):
                     end_date = '{end_date.strftime(datetime_format)}' 
                 WHERE id = 1
             '''))
+            conn.commit()
 
 
 def update_tree_radolan_days_for_query(engine, values, query, info):
@@ -86,9 +88,9 @@ def update_tree_radolan_days_for_query(engine, values, query, info):
         with engine.connect() as conn:
             for index, value in enumerate(values):
                 try:
-                    conn.execute(text(query.format(values)))
+                    result = conn.execute(text(query.format(f"ARRAY{value[0]}", value[1], value[2])))
                     conn.commit()
-                    logger.info(f"Updated {index}. radolan square")
+                    logger.info(f"Updated {index}. radolan square: {result.rowcount} trees affected")
                 except (Exception, psycopg2.DatabaseError) as error:
                     logger.error(f"Error: {error}")
     except:
@@ -98,7 +100,7 @@ def update_tree_radolan_days_for_query(engine, values, query, info):
 def update_tree_radolan_days(engine, values):
     first_query = '''
         UPDATE trees SET radolan_days = {}, radolan_sum = {} 
-        WHERE ST_CoveredBy(geom, ST_SetSRID(ST_GeomFromGeoJSON({}), 4326))
+        WHERE ST_CoveredBy(geom, ST_SetSRID(ST_GeomFromGeoJSON('{}'), 4326))
     '''
     first_info = "updating trees 🌳"
     update_tree_radolan_days_for_query(engine, values, first_query, first_info)
@@ -106,7 +108,7 @@ def update_tree_radolan_days(engine, values):
         UPDATE trees SET radolan_days = {}, radolan_sum = {} 
         WHERE trees.radolan_sum IS NULL 
         AND ST_CoveredBy(geom, 
-            ST_Buffer(ST_SetSRID(ST_GeomFromGeoJSON({}), 4326), 0.00005)
+            ST_Buffer(ST_SetSRID(ST_GeomFromGeoJSON('{}'), 4326), 0.00005)
         )
     '''
     second_info = "updating sad trees 🌳"

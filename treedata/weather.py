@@ -123,9 +123,8 @@ def handle_weather(args):
             grid=grid,
             clean=clean
         )
-        values = get_sorted_cleaned_grid_cells(clean)
+        values = get_sorted_cleaned_grid_cells(clean, grid)
         update_tree_radolan_days(db_engine, values)
-
     if not args.skip_upload_geojsons_to_s3 or not args.skip_upload_csvs_to_s3:
         for env_var in ["SUPABASE_URL", "SUPABASE_BUCKET_NAME", "SUPABASE_SERVICE_ROLE_KEY"]:
             if env_var not in os.environ:

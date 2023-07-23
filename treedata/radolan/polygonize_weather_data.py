@@ -26,7 +26,7 @@ def polygonize_asc_file(buffer_file_name, input_file, output_file, file_name):
         "-t_srs", '+proj=stere +lon_0=10.0 +lat_0=90.0 +lat_ts=60.0 +a=6370040 +b=6370040 +units=m',
         "-r", "near", "-of", "GTiff", "-cutline", buffer_file
     ]
-    print(' '.join(cmdline))
+    logging.info("executing",  ' '.join(cmdline))
     subprocess.call(cmdline)
 
     # polygonize data
@@ -37,7 +37,7 @@ def polygonize_asc_file(buffer_file_name, input_file, output_file, file_name):
         'gdal_polygonize.py', output_file, "-f",
         "ESRI Shapefile", shape_file, file_name, "MYFLD"
     ]
-    print(' '.join(cmdline))
+    logging.info("executing",  ' '.join(cmdline))
     # gdal_polygonize.py D:/git/gbl/musterstadt-giesst-treedata/weather_data/data_files/temp.tif -f "ESRI Shapefile" D:/git/gbl/musterstadt-giesst-treedata/weather_data/data_files/temp.shp temp MYFLD
     subprocess.call(cmdline)
 

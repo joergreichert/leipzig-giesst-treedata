@@ -8,9 +8,7 @@ def create_feature(prop_id, geometry, data):
         "geometry": geometry,
         "properties": {
             "id": prop_id,
-            "data": [
-                data
-            ]
+            "data": data
         }
     }
 
@@ -20,8 +18,8 @@ def transform_to_features(grid, clean, calc_fun):
     for cellindex, cell in enumerate(grid):
         data = calc_fun(clean[cellindex])
         features.append(create_feature(
-            prop_id=cell[1],
-            geometry=cell[0],
+            prop_id=cell[0],
+            geometry=json.loads(cell[1]),
             data=data
         ))
     return features
@@ -29,7 +27,7 @@ def transform_to_features(grid, clean, calc_fun):
 
 def transform_to_weather_geojson_features(grid, clean):
     def calc_fun(value):
-        return ",".join(map(str, value))
+        return ",".join(map(str, value)).split(",")
 
     return transform_to_features(grid, clean, calc_fun)
 
