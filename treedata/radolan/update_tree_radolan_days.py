@@ -69,12 +69,13 @@ def update_statistics_db(filelist, engine, time_limit_days, last_received):
         end_date = end_date.replace(hour=23, minute=50, second=0, microsecond=0)
         start_date = datetime.now() + timedelta(days=-time_limit_days)
         start_date = start_date.replace(hour=0, minute=50, second=0, microsecond=0)
+        datetime_format = "%Y-%m-%d %H:%M:%S"
         with engine.connect() as conn:
             conn.execute(text(f'''
                 UPDATE radolan_harvester SET 
-                    collection_date = {last_received}, 
-                    start_date = {start_date}, 
-                    end_date = {end_date} 
+                    collection_date = '{last_received.strftime(datetime_format)}', 
+                    start_date = '{start_date.strftime(datetime_format)}', 
+                    end_date = '{end_date.strftime(datetime_format)}' 
                 WHERE id = 1
             '''))
 

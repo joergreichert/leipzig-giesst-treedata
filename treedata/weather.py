@@ -96,13 +96,13 @@ def handle_weather(args):
             create_radolon_grid()
             polygonize_asc_file(
                 buffer_file_name=args.city_shape_buffer_file_name,
-                input_file=f"{RADOLAN_PATH}grid-transform.asc",
-                output_file=f"{RADOLAN_PATH}grid-buffer.asc",
+                input_file=f"{RADOLAN_PATH}/grid-transform.asc",
+                output_file=f"{RADOLAN_PATH}/grid-buffer.asc",
                 file_name="grid-transform"
             )
             update_radolan_geometry(
                 engine=db_engine,
-                radolan_grid_shape_path=f"{RADOLAN_PATH}grid-transform.shp",
+                radolan_grid_shape_path=f"{RADOLAN_PATH}/grid-transform.shp",
             )
         upload_radolan_data(db_engine, radolan_data)
         purge_data_older_than_time_limit_days(db_engine, TIME_LIMIT_DAYS)

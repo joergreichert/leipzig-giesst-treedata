@@ -16,6 +16,7 @@ def exist_radolan_geometry(engine):
             return True
     return False
 
+
 def update_radolan_geometry(engine, radolan_grid_shape_path):
     df = geopandas.read_file(radolan_grid_shape_path)
     df = df.to_crs("epsg:4326")
@@ -23,19 +24,25 @@ def update_radolan_geometry(engine, radolan_grid_shape_path):
     if len(clean) > 0:
         values = []
         for index, row in clean.iterrows():
-            values.append([dumps(row.geometry, rounding_precision=5)])
+            values.append(dumps(row.geometry, rounding_precision=5))
         with engine.connect() as conn:
-            conn.begin()
-            conn.execute("DELETE FROM public.radolan_geometry;")
-            psycopg2.extras.execute_batch(
-                conn,
-                text('''
-                    "INSERT INTO public.radolan_geometry (geometry) VALUES (ST_GeomFromText(%s, 4326));",
-                '''),
-                values
-            )
+            conn.execute(text("DELETE FROM public.radolan_geometry"))
             conn.commit()
-            conn.execute("UPDATE public.radolan_geometry SET centroid = ST_Centroid(geometry);")
+            query = "INSERT INTO public.radolan_geometry (geometry) VALUES {}"
+            sub_lists = []
+            for index in range(0, len(values), 90):
+                sub_lists.append(values[index:index + 90])
+            logger.info(f"{len(sub_lists)} batches of geometries to update")
+            for index, sub_list in enumerate(sub_lists):
+                try:
+                    tuples = ", ".join([f"(ST_GeomFromText('{x}', 4326))" for x in sub_list])
+                    conn.execute(text(query.format(tuples)))
+                    conn.commit()
+                    logger.info(f"Updated {index}. {len(sub_list)} geometries")
+                except (Exception, psycopg2.DatabaseError) as error:
+                    logger.error(f"Error: {error}")
+        with engine.connect() as conn:
+            conn.execute(text("UPDATE public.radolan_geometry SET centroid = ST_Centroid(geometry)"))
             conn.commit()
 
 
