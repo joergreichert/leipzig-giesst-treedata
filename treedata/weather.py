@@ -1,6 +1,7 @@
 import os
 import argparse
 from datetime import datetime, timedelta
+import logging
 
 from radolan.buffer_city_shape import create_buffered_city_shape
 from radolan.download_weather_data import download_weather_data
@@ -125,6 +126,13 @@ def handle_weather(args):
         values = get_sorted_cleaned_grid_cells(clean)
         update_tree_radolan_days(db_engine, values)
 
+    if not args.skip_upload_geojsons_to_s3 or not args.skip_upload_csvs_to_s3:
+        for env_var in ["SUPABASE_URL", "SUPABASE_BUCKET_NAME", "SUPABASE_SERVICE_ROLE_KEY"]:
+            if env_var not in os.environ:
+                msg = "❌Environmental Variable {} does not exist but is required".format(env_var)
+                logging.error(msg)
+                raise Exception(msg)
+
     supabase_url = os.getenv('SUPABASE_URL')
     supabase_bucket_name = os.getenv('SUPABASE_BUCKET_NAME')
     supabase_role_key = os.getenv('SUPABASE_SERVICE_ROLE_KEY')
@@ -154,6 +162,11 @@ def handle_weather(args):
             file_path_to_file_name=file_path_to_file_name_union
         )
     if not args.skip_upload_csvs_to_mapbox:
+        for env_var in ["MAPBOXUSERNAME", "MAPBOXTOKEN", "MAPBOXTILESET"]:
+            if env_var not in os.environ:
+                msg = "❌Environmental Variable {} does not exist but is required".format(env_var)
+                logging.error(msg)
+                raise Exception(msg)
         mapbox_username = os.getenv("MAPBOXUSERNAME")
         mapbox_token = os.getenv("MAPBOXTOKEN")
         mapbox_s3_data = get_mapbox_s3_data(
@@ -161,23 +174,23 @@ def handle_weather(args):
             mapbox_token=mapbox_token
         )
         mapbox_s3_client = create_s3_client(
-            aws_access_key=mapbox_s3_data.aws_access_key_id,
-            aws_secret_key=mapbox_s3_data.aws_secret_access_key,
-            aws_session_token=mapbox_s3_data.aws_session_token
+            aws_access_key=mapbox_s3_data['aws_access_key_id'],
+            aws_secret_key=mapbox_s3_data['aws_secret_access_key'],
+            aws_session_token=mapbox_s3_data['aws_session_token']
         )
         upload_files_to_s3(
             s3_client=mapbox_s3_client,
-            s3_bucket_name=mapbox_s3_data.bucket_name,
+            s3_bucket_name=mapbox_s3_data['bucket_name'],
             file_path_to_file_name={
-                f"{RADOLAN_PATH}/trees-total.csv": mapbox_s3_data.file_name
+                f"{RADOLAN_PATH}/trees-total.csv": mapbox_s3_data['file_name']
             }
         )
         mapbox_tileset = os.getenv("MAPBOXTILESET")
         notify_mapbox_upload(
             mapbox_username=mapbox_username,
             mapbox_token=mapbox_token,
-            mapbox_s3_bucket_name=mapbox_s3_data.bucket_name,
-            mapbox_s3_file_name=mapbox_s3_data.file_name,
+            mapbox_s3_bucket_name=mapbox_s3_data['bucket_name'],
+            mapbox_s3_file_name=mapbox_s3_data['file_name'],
             mapbox_tileset=mapbox_tileset
         )
 

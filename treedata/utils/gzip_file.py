@@ -1,4 +1,5 @@
 import gzip
+import logging
 
 
 def gzip_file(file_path):
@@ -6,8 +7,9 @@ def gzip_file(file_path):
     data = file.read()
     bindata = bytearray(data)
     gzip_file_path = f"{file_path}.gz"
-    with gzip.open(file_path, "wb") as f:
+    with gzip.open(gzip_file_path, "wb") as f:
         f.write(bindata)
+        logging.info(f"Gzipped {gzip_file_path}")
     return gzip_file_path
 
 

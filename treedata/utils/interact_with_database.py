@@ -2,19 +2,20 @@ import logging
 import os
 
 import geopandas as gpd
-from dotenv import load_dotenv
 from sqlalchemy import create_engine
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
+ROOT_DIR = os.path.abspath(os.curdir)
+
 
 def get_db_engine():
-    ROOT_DIR = os.path.abspath(os.curdir)
-    load_dotenv(f'{ROOT_DIR}/resources/.env')
     for env_var in ["PG_DB", "PG_PORT", "PG_USER", "PG_PASS", "PG_DB"]:
         if env_var not in os.environ:
-            logger.error(f"Environmental variable {env_var} does not exist")
+            msg = f"Environmental variable {env_var} does not exist but is required"
+            logger.error(msg)
+            raise Exception(msg)
     pg_server = os.getenv("PG_SERVER")
     pg_port = os.getenv("PG_PORT")
     pg_username = os.getenv("PG_USER")

@@ -80,39 +80,34 @@ def update_statistics_db(filelist, engine, time_limit_days, last_received):
             '''))
 
 
-def update_tree_radolan_days(engine, values):
-    logging.info("updating trees 🌳")
+def update_tree_radolan_days_for_query(engine, values, query, info):
+    logging.info(info)
     try:
         with engine.connect() as conn:
-            conn.begin()
-            psycopg2.extras.execute_batch(
-                conn,
-                text('''
-                    UPDATE trees SET radolan_days = %s, radolan_sum = %s 
-                    WHERE ST_CoveredBy(geom, ST_SetSRID(ST_GeomFromGeoJSON(%s), 4326))
-                '''),
-                values
-            )
-            conn.commit()
+            for index, value in enumerate(values):
+                try:
+                    conn.execute(text(query.format(values)))
+                    conn.commit()
+                    logger.info(f"Updated {index}. radolan square")
+                except (Exception, psycopg2.DatabaseError) as error:
+                    logger.error(f"Error: {error}")
     except:
         logging.error("❌Could not update radolan days")
 
-    # update all the trees we have missed with the first round :(
-    logging.info("updating sad trees 🌳")
-    try:
-        with engine.connect() as conn:
-            conn.begin()
-            psycopg2.extras.execute_batch(
-                conn,
-                text('''
-                    UPDATE trees SET radolan_days = %s, radolan_sum = %s 
-                    WHERE trees.radolan_sum IS NULL 
-                    AND ST_CoveredBy(geom, 
-                        ST_Buffer(ST_SetSRID(ST_GeomFromGeoJSON(%s), 4326), 0.00005)
-                    )
-                '''),
-                values
-            )
-            conn.commit()
-    except:
-        logging.error("❌Could not update radolan days")
+
+def update_tree_radolan_days(engine, values):
+    first_query = '''
+        UPDATE trees SET radolan_days = {}, radolan_sum = {} 
+        WHERE ST_CoveredBy(geom, ST_SetSRID(ST_GeomFromGeoJSON({}), 4326))
+    '''
+    first_info = "updating trees 🌳"
+    update_tree_radolan_days_for_query(engine, values, first_query, first_info)
+    second_query = '''
+        UPDATE trees SET radolan_days = {}, radolan_sum = {} 
+        WHERE trees.radolan_sum IS NULL 
+        AND ST_CoveredBy(geom, 
+            ST_Buffer(ST_SetSRID(ST_GeomFromGeoJSON({}), 4326), 0.00005)
+        )
+    '''
+    second_info = "updating sad trees 🌳"
+    update_tree_radolan_days_for_query(engine, values, second_query, second_info)

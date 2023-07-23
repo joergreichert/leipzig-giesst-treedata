@@ -1,10 +1,15 @@
 import argparse
 import logging
+import os
 import time
 from city_wfs import configure_city_shape_args
 from trees_wfs import configure_trees_args
 from trees_process import configure_trees_process_args
 from weather import configure_weather_args
+from dotenv import load_dotenv
+
+
+ROOT_DIR = os.path.abspath(os.curdir)
 
 logger = logging.getLogger('root')
 FORMAT = "[%(levelname)s %(name)s] %(message)s"
@@ -12,6 +17,7 @@ logging.basicConfig(format=FORMAT)
 logger.setLevel(logging.DEBUG)
 
 start = time.time()
+load_dotenv(f'{ROOT_DIR}/resources/.env')
 
 parser = argparse.ArgumentParser(description='Processing city shape, tree data and weather data')
 subparsers = parser.add_subparsers(help='actions', dest='action')

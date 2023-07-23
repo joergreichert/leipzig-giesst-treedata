@@ -97,6 +97,5 @@ def get_radolan_files_for_upload(path):
     file_path_to_file_name = {}
     for file_name in objects_to_write:
         file_path = f"{path}{file_name}.geojson"
-        for file_path in [file_path, f"{file_path}.gz"]:
-            file_path_to_file_name[file_path] = file_name
+        file_path_to_file_name[file_path] = file_name
     return file_path_to_file_name

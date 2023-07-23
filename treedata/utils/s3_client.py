@@ -18,7 +18,7 @@ def upload_to_s3(s3_client, path, file_name, s3_bucket_name):
             'ContentEncoding': 'gzip',
             'ACL': 'public-read'
         }
-    s3_client.upload_file(f"{path}{file_name}", s3_bucket_name, file_name, ExtraArgs=extra_args)
+    s3_client.upload_file(path, s3_bucket_name, file_name, ExtraArgs=extra_args)
 
 
 def upload_files_to_s3(s3_client, s3_bucket_name, file_path_to_file_name):

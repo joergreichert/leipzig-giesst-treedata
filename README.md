@@ -96,6 +96,22 @@ PG_PASS=postgres
 PG_DB=postgres
 ```
 
+ * run `supabase status` in `musterstadt-giesst-api` and add the values 
+
+```
+SUPABASE_URL=<API URL, e.g. http://localhost:54321>
+SUPABASE_BUCKET_NAME=<create new public bucket under http://localhost:54323/project/default/storage/buckets and name it e.g. "radolan_data" and use this name here>
+SUPABASE_SERVICE_ROLE_KEY=<service role key)
+```
+
+and 
+
+```
+MAPBOXUSERNAME=<username as displad in https://account.mapbox.com/ under "Account" on the right upper side>
+MAPBOXTOKEN=<create secret access token as described here https://docs.mapbox.com/help/tutorials/upload-curl/#getting-started>
+MAPBOXTILESET=<create new tileset under https://studio.mapbox.com/tilesets/ and the copy tile set id and use it here>
+```
+
 ## Demo
  * Download city shape WFS file to geojson: `python ./treedata/main.py city_shape`
    * command with all options: `python ./treedata/main.py city_shape --wfs-url <WFS-URL> --source-encoding iso-8859-1 --xml-file-name wfs --geojson-file-name city_shape --skip-download-wfs-xml --skip-convert-to-geojson`
@@ -107,6 +123,6 @@ PG_DB=postgres
    * store as file only: `python ./treedata/main.py trees_process --city-shape-geojson-file-name city_shape --skip-upload-to-db --trees-geojson-file-name s_wfs_baumbestand_2023-07-15`
    * store in db only: `python ./treedata/main.py trees_process --skip-transform --skip-store-as-geojson --trees-geojson-file-name trees_transformed --database-table-name trees_tmp`
  * Process weather data (under Windows run these commands in Anaconda Prompt (miniconda3) console): `python ./treedata/main.py weather`
-   * command with all options: `python ./treedata/main.py weather --start-days-offset 2 --end-days-offset 1 --city-shape-geojson-file-name city_shape-small --city-shape-buffer-file-name city_shape-small-buffered --city-shape-buffer 2000 --city-shape-simplify 1000`
+   * command with all options: `python ./treedata/main.py weather --start-days-offset 2 --end-days-offset 1 --city-shape-geojson-file-name city_shape-small --city-shape-buffer-file-name city_shape-small-buffered --city-shape-buffer 2000 --city-shape-simplify 1000  --skip-buffer-city-shape --skip-download-weather-data --skip-polygonize-weather-data --skip-join-radolan-data --skip-upload-radolan-data --skip-update-tree-radolan-days --skip-upload-geojsons-to-s3 --skip-upload-csvs-to-s3 --skip-upload-csvs-to-mapbox`
    * only join radolan shp files: `python ./treedata/main.py weather --skip-download-weather-data --skip-unzip-weather-data --skip-buffer-city-shape --skip-polygonize-weather-data`
    * only upload radolan geojson file: `python ./treedata/main.py weather --skip-download-weather-data --skip-unzip-weather-data --skip-buffer-city-shape --skip-polygonize-weather-data --skip-join-radolan-data`
