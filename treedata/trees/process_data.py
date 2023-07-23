@@ -1,9 +1,9 @@
 import os
 import logging
 from math import pi
-
 import yaml
 import datetime
+from dateutil import parser
 
 from .geo_within import get_district
 
@@ -12,9 +12,10 @@ current_year = int(datetime.datetime.now().date().strftime("%Y"))
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
+ROOT_DIR = os.path.abspath(os.curdir)
+
 
 def read_config():
-    ROOT_DIR = os.path.abspath(os.curdir)
     with open(f"{ROOT_DIR}/resources/conf.yml", 'r') as stream:
         try:
             conf = yaml.safe_load(stream)
@@ -29,7 +30,6 @@ def read_config():
 
 
 def read_genus_mapping():
-    ROOT_DIR = os.path.abspath(os.curdir)
     with open(f"{ROOT_DIR}/resources/genus.yml", 'r', encoding='utf-8') as stream:
         try:
             conf = yaml.safe_load(stream)
@@ -101,20 +101,39 @@ def lookup_district(inputs):
         return None
 
 
+def calc_update_date(inputs):
+    if 'update_data_str' in inputs:
+        try:
+            given_date = inputs['update_data_str']
+            if isinstance(given_date, str):
+                date = parser.parse(given_date)
+            elif isinstance(given_date, datetime.date):
+                date = given_date
+            else:
+                return None
+            return date.date()
+        except:
+            return None
+    else:
+        return None
+
+
 calc_funs = {
     "lookup_genus": lookup_genus,
     "lookup_genus_german": lookup_genus_german,
     "calc_plant_year": calc_plant_year,
     "calc_trunc_circumference": calc_trunc_circumference,
-    "lookup_district": lookup_district
+    "lookup_district": lookup_district,
+    "calc_update_date": calc_update_date
 }
 
 
 def transform_new_tree_data(new_trees, attribute_list, schema_mapping_dict, schema_calculated_dict, city_shape):
     transformed_trees = new_trees.rename(columns=schema_mapping_dict)
+    logger.info(f'Loaded {len(transformed_trees)} trees')
 
     # transform gml_id here
-    transformed_trees['id'] = transformed_trees['standort_nr'].str.split(pat=".").str[1]
+    transformed_trees['id'] = transformed_trees['standortnr'].str.split(pat=".").str[1]
 
     # drop not needed columns based on the columns of the old data
     for column in transformed_trees.columns:

@@ -17,23 +17,24 @@ if (not os.environ.get('PYTHONHTTPSVERIFY', '') and
 def get_wfs_request_url(wfs_url):
     wfs = WebFeatureService(url=wfs_url)
     layer = f"cls:{list(wfs.contents)[-1].split(':')[-1]}"
-    logger.info('Found layer', layer)
+    logger.info(f"Found layer {layer}")
     params = dict(service='WFS', version="2.0.0", request='GetFeature', typeNames=layer
                   # , outputFormat='text/xml; subtype="gml/3.2.1"'
                   )
     return Request('GET', wfs_url, params=params).prepare().url
 
 
-def download_wfs_to_xml(wfs_url, source_encoding, outfile_name):
-    logger.info('Request WFS from', wfs_url)
+def download_wfs_to_xml(wfs_url, source_encoding, outfile_path):
+    logger.info(f"Request WFS from {wfs_url}")
     r = get(wfs_url)
-    with open(f"{outfile_name}.xml", 'w', encoding=source_encoding) as fd:
+    with open(f"{outfile_path}.xml", 'w', encoding=source_encoding) as fd:
         fd.write(r.text)
 
 
-def convert_xml_to_geojson(infile_name, source_encoding, outfile_name):
-    data = gpd.read_file(f"{infile_name}.xml", encoding=source_encoding)
-    store_as_geojson(data, outfile_name)
+def convert_xml_to_geojson(infile_path, source_encoding, outfile_path):
+    logger.info(f'Load XML {infile_path}.xml')
+    data = gpd.read_file(f"{infile_path}.xml", encoding=source_encoding, crs_wkt='2100')
+    store_as_geojson(data, outfile_path)
 
 
 def store_as_geojson(data, outfile_name):

@@ -1,19 +1,19 @@
 import argparse
 from .get_data_from_wfs import download_wfs_to_xml
-from .get_data_from_wfs import convert_xml_to_geojson
+from .get_data_from_wfs import get_wfs_request_url, convert_xml_to_geojson
 
 source_encoding_default = 'iso-8859-1'
 
 
-def __download_wfs_to_geojson__(wfs_url_base, xml_file_name, geojson_file_name,
+def __download_wfs_to_geojson__(wfs_url_base, xml_file_path, geojson_file_path,
                                 source_encoding=source_encoding_default, download_wfs=True, convert_to_geojson=True):
     if download_wfs:
         wfs_url_with_params = get_wfs_request_url(wfs_url_base)
-        download_wfs_to_xml(wfs_url=wfs_url_with_params, source_encoding=source_encoding, outfile_name=xml_file_name)
+        download_wfs_to_xml(wfs_url=wfs_url_with_params, source_encoding=source_encoding, outfile_path=xml_file_path)
 
     if convert_to_geojson:
-        convert_xml_to_geojson(infile_name=xml_file_name, source_encoding=source_encoding,
-                               outfile_name=geojson_file_name)
+        convert_xml_to_geojson(infile_path=xml_file_path, source_encoding=source_encoding,
+                               outfile_path=geojson_file_path)
 
 
 def configure_wfs_args(
@@ -40,7 +40,7 @@ def configure_wfs_args(
 
 def handle_wfs(args, base_folder):
     __download_wfs_to_geojson__(wfs_url_base=args.wfs_url_base, source_encoding=args.source_encoding,
-                                xml_file_name=f"{base_folder}/{args.xml_file_name}",
-                                geojson_file_name=f"{base_folder}/{args.geojson_file_name}",
+                                xml_file_path=f"{base_folder}/{args.xml_file_name}",
+                                geojson_file_path=f"{base_folder}/{args.geojson_file_name}",
                                 download_wfs=not args.skip_download_wfs,
                                 convert_to_geojson=not args.skip_convert_to_geojson)

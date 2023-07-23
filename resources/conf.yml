@@ -2,14 +2,13 @@ data-schema:
   mapping:
     geometry: geometry
     name: strname
-    standort_nr: haus_nr
+    standort_nr: hausnr
     art_botanisch: artbot
     art_deutsch: artdtsch
-    gml_id: standort_nr
+    gml_id: standortnr
     baumhoehe_akt: baumhoehe
     stammdurchmesser_akt: stammdurch
     kronendurchmesser_akt: kronedurch
-    aend_dat: zuletztakt
   calculated:
     gattung:
       inputs:
@@ -31,6 +30,7 @@ data-schema:
       inputs:
         geometry: geometry
       function: lookup_district
-
-
-
+    aend_dat:
+      inputs:
+        aend_dat: update_data_str
+      function: calc_update_date

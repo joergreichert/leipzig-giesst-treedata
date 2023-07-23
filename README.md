@@ -20,6 +20,9 @@ Please review the content of the `README.md` and adjust it to the project.
 CREATE EXTENSION postgis;
 CREATE EXTENSION postgis_topology;
 ```
+ * alternatives 
+   * with Docker: `docker run --name treedata-postgis -e POSTGRES_PASSWORD=treedata -d postgis/postgis`
+   * with Supabase (see below)
  
 #### Miniconda
  * https://docs.conda.io/en/latest/miniconda.html#windows-installers
@@ -58,6 +61,12 @@ pip install gssapi
 gdalwarp -v
 ```
 
+### Troubleshooting
+ * error when executing `gdalwarp -v`: `gdalwarp: error while loading shared libraries: libpoppler.so.126: cannot open shared object file: No such file or directory`
+   * **solution**: `conda install -c conda-forge gdal libgdal tiledb=2.2`
+ * error while converting WFS XML to GeoJSON (e.g. city shape): `fiona._err.CPLE_AppDefinedError: PROJ: internal_proj_create: no database context specified`
+   * **solution**: remove environments via `unset PROJ_LIB` and `unset GDAL_DATA` as they conflict 
+
 ### PyCharm
  * Download Community Edition: https://www.jetbrains.com/pycharm/
  * https://www.jetbrains.com/help/pycharm/conda-support-creating-conda-virtual-environment.html#create-a-conda-environment
@@ -68,16 +77,36 @@ gdalwarp -v
  * copy `resources/sample.env` to `resources/.env`
    * set your (locally) PostgreSQL connection data
 
+### Local Supabase
+ * follow https://github.com/greenbluelab/musterstadt-giesst-api#supabase-local
+   (resp. https://supabase.com/docs/guides/self-hosting/docker for general approach) 
+ * then adapt ./resources/.env to match supabase/docker/.env settings for Supabase PostgreSQL
+ * in http://localhost:54323/project/default/database/extensions extension POSTGIS should be 
+   already enabled, when used the general approach: enable extensions POSTGIS in 
+   http://localhost:3000/project/default/database/extensions 
+   (see also https://supabase.com/docs/guides/database/extensions/postgis)
+ * the initial tables and indexes should be already created within musterstadt-giesst-api
+
+resources/.env
+```
+PG_SERVER=localhost
+PG_PORT=54322
+PG_USER=postgres
+PG_PASS=postgres
+PG_DB=postgres
+```
+
 ## Demo
  * Download city shape WFS file to geojson: `python ./treedata/main.py city_shape`
-   * complete: `python ./treedata/main.py city_shape --wfs-url <WFS-URL> --source-encoding iso-8859-1 --xml-file-name wfs --geojson-file-name city_shape --skip-download-wfs-xml --skip-convert-to-geojson`
+   * command with all options: `python ./treedata/main.py city_shape --wfs-url <WFS-URL> --source-encoding iso-8859-1 --xml-file-name wfs --geojson-file-name city_shape --skip-download-wfs-xml --skip-convert-to-geojson`
  * Download trees WFS file to geojson: `python ./treedata/main.py trees`
-   * complete: `python ./treedata/main.py trees --wfs-url <WFS-URL> --source-encoding iso-8859-1 --xml-file-name wfs --geojson-file-name trees --skip-download-wfs-xml --skip-convert-to-geojson`
- * Process geojson: `python ./treedata/main.py trees_process
-   * complete: `python ./treedata/main.py trees_process --city-shape-geojson-file-name city_shape --trees-geojson-file-name trees --geojson-file-name trees-transformed --database-table-name trees_tmp --skip-transform --skip-store-as-geojson --skip-upload-to-db`
+   * command with all options: `python ./treedata/main.py trees --wfs-url <WFS-URL> --source-encoding iso-8859-1 --xml-file-name wfs --geojson-file-name trees --skip-download-wfs-xml --skip-convert-to-geojson`
+ * Process trees: `python ./treedata/main.py trees_process`
+   * process specific trees geojson (from resources/trees): `python ./treedata/main.py trees_process --trees-geojson-file-name s_wfs_baumbestand_2023-07-23.geojson`
+   * command with all options: `python ./treedata/main.py trees_process --city-shape-geojson-file-name city_shape --trees-geojson-file-name trees --geojson-file-name trees-transformed --database-table-name trees_tmp --skip-transform --skip-store-as-geojson --skip-upload-to-db`
    * store as file only: `python ./treedata/main.py trees_process --city-shape-geojson-file-name city_shape --skip-upload-to-db --trees-geojson-file-name s_wfs_baumbestand_2023-07-15`
    * store in db only: `python ./treedata/main.py trees_process --skip-transform --skip-store-as-geojson --trees-geojson-file-name trees_transformed --database-table-name trees_tmp`
  * Process weather data (under Windows run these commands in Anaconda Prompt (miniconda3) console): `python ./treedata/main.py weather`
-   * complete: `python ./treedata/main.py weather --start-days-offset 2 --end-days-offset 1 --city-shape-geojson-file-name city_shape-small --city-shape-buffer-file-name city_shape-small-buffered --city-shape-buffer 2000 --city-shape-simplify 1000`
+   * command with all options: `python ./treedata/main.py weather --start-days-offset 2 --end-days-offset 1 --city-shape-geojson-file-name city_shape-small --city-shape-buffer-file-name city_shape-small-buffered --city-shape-buffer 2000 --city-shape-simplify 1000`
    * only join radolan shp files: `python ./treedata/main.py weather --skip-download-weather-data --skip-unzip-weather-data --skip-buffer-city-shape --skip-polygonize-weather-data`
    * only upload radolan geojson file: `python ./treedata/main.py weather --skip-download-weather-data --skip-unzip-weather-data --skip-buffer-city-shape --skip-polygonize-weather-data --skip-join-radolan-data`

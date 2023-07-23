@@ -2,6 +2,8 @@ import argparse
 import logging
 import os
 
+import pandas
+
 from trees.sync_trees import sync_trees
 from utils.get_data_from_wfs import read_geojson, store_as_geojson
 from utils.interact_with_database import get_db_engine, add_to_db
@@ -10,24 +12,26 @@ from trees.process_data import read_config, transform_new_tree_data
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
+ROOT_DIR = os.path.abspath(os.curdir)
+
 attribute_list = [
     'id',
     'geometry',
     'strname',
-    'haus_nr',
+    'hausnr',
     'artbot',
     'artdtsch',
-    'standort_nr',
+    'standortnr',
     'baumhoehe',
     'stammdurch',
     'kronedurch',
-    'zuletztakt',
+    'aend_dat',
     'gattung',
-    'gattungdeutsch2',
+    'gattungdeutsch',
     'pflanzjahr',
     'stammumfg',
-    'xcoord',
-    'ycoord',
+    'lat',
+    'lng',
     'bezirk'
 ]
 
@@ -57,7 +61,6 @@ def configure_trees_process_args(parser=argparse.ArgumentParser(description='Tra
 
 
 def handle_trees_process(args):
-    ROOT_DIR = os.path.abspath(os.curdir)
     city_shape = read_geojson(f"{ROOT_DIR}/resources/city_shape/{args.city_shape_file_name}.geojson")
     schema_mapping_dict, schema_calculated_dict = read_config()
 
@@ -74,22 +77,26 @@ def handle_trees_process(args):
         transformed_trees = read_geojson(f"{ROOT_DIR}/resources/trees/{args.geojson_file_name}.geojson")
 
     if not args.skip_store_as_geojson:
-        if 'zuletztakt' in transformed_trees:
+        if 'aend_dat' in transformed_trees:
             def try_date_to_str(value):
+                if value is None:
+                    return None
                 try:
                     if type(value) is str:
                         return value
                     else:
-                        return value.strftime('%Y%m%d%H%M%S')
+                        return value.strftime('%Y-%m-%d')
                 except Exception as e:
                     logging.exception(f"cannot transform date to string {type(value)}: {e}")
                     return None
-            transformed_trees['zuletztakt'] = transformed_trees['zuletztakt'].apply(try_date_to_str)
+            transformed_trees['aend_dat'] = transformed_trees['aend_dat'].apply(try_date_to_str)
         store_as_geojson(transformed_trees, f"{ROOT_DIR}/resources/trees/{args.geojson_file_name}")
 
     if not args.skip_upload_to_db:
         logger.info("Adding new trees to database...")
         db_engine = get_db_engine()
+        if 'aend_dat' in transformed_trees:
+            transformed_trees['aend_dat'] = pandas.to_datetime(transformed_trees['aend_dat'], format='%Y-%m-%d')
         add_to_db(db_engine, transformed_trees, args.database_table_name)
         sync_trees(
             engine=db_engine,
