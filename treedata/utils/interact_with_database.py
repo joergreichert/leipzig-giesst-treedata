@@ -28,7 +28,7 @@ def get_db_engine():
 
 
 def add_to_db(engine, result, table_name):
-    result['geometry'] = gpd.points_from_xy(result.lat, result.lng)
+    result['geometry'] = gpd.points_from_xy(result.lng, result.lat)
     result = result.rename(columns={'geometry': 'geom'}).set_geometry('geom')
     result.to_postgis(table_name, engine, if_exists='replace', index=False)
     logger.info(f'Imported data to table {table_name}')

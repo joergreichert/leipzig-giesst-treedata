@@ -152,14 +152,7 @@ def handle_weather(args):
             time_limit_days=TIME_LIMIT_DAYS,
             path=f"{RADOLAN_PATH}/"
         )
-        gzip_file_path_to_file_name = gzip_files(file_path_to_file_name)
-        file_path_to_file_name_union = file_path_to_file_name | gzip_file_path_to_file_name
-        upload_files_to_supabase_storage(
-            supabase_url=supabase_url,
-            supabase_bucket_name=supabase_bucket_name,
-            supabase_role_key=supabase_role_key,
-            file_path_to_file_name=file_path_to_file_name_union
-        )
+        gzip_files(file_path_to_file_name)
     if not args.skip_upload_csvs_to_mapbox:
         for env_var in ["MAPBOXUSERNAME", "MAPBOXTOKEN", "MAPBOXTILESET"]:
             if env_var not in os.environ:

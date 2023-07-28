@@ -90,8 +90,11 @@ def write_csv_content(trees, path, file_name):
     column_names = ['id', 'lng', 'lat', 'radolan_sum', 'age']
     trees_per_file_limit = math.ceil(len(trees) / 4)
     trees_sublists = []
-    for index in range(0, len(trees), trees_per_file_limit):
-        trees_sublists.append(trees[index:index + trees_per_file_limit])
+    if len(trees) > 0:
+        for index in range(0, len(trees), trees_per_file_limit):
+            trees_sublists.append(trees[index:index + trees_per_file_limit])
+    else:
+        raise Exception(f"Error: trees is empty for {path}/{file_name}")
 
     file_path = f"{path}{file_name}.csv"
     filepath_to_filename[file_path] = f"{file_name}.csv"

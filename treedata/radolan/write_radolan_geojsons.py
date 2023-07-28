@@ -73,7 +73,6 @@ def process_geojson(path, file_name, start_date, end_date, feature_list):
 
 
 objects_to_write = {
-    "weather": transform_to_weather_geojson_features,
     "weather_light": transform_to_weather_light_geojson_features,
 }
 
@@ -95,5 +94,5 @@ def get_radolan_files_for_upload(path):
     file_path_to_file_name = {}
     for file_name in objects_to_write:
         file_path = f"{path}{file_name}.geojson"
-        file_path_to_file_name[file_path] = file_name
+        file_path_to_file_name[file_path] = f"{file_name}.geojson"
     return file_path_to_file_name

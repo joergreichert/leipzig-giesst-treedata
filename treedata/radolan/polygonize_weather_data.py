@@ -27,7 +27,9 @@ def polygonize_asc_file(buffer_file_name, input_file, output_file, file_name):
         "-r", "near", "-of", "GTiff", "-cutline", buffer_file
     ]
     logging.info("executing",  ' '.join(cmdline))
-    subprocess.call(cmdline)
+    returncode_gdalwarp = subprocess.call(cmdline)
+    if returncode_gdalwarp != 0:
+        raise Exception(f"gdalwarp failed for {buffer_file}")
 
     # polygonize data
     shape_file = path + f"{file_name}.shp"
@@ -39,7 +41,10 @@ def polygonize_asc_file(buffer_file_name, input_file, output_file, file_name):
     ]
     logging.info("executing",  ' '.join(cmdline))
     # gdal_polygonize.py D:/git/gbl/musterstadt-giesst-treedata/weather_data/data_files/temp.tif -f "ESRI Shapefile" D:/git/gbl/musterstadt-giesst-treedata/weather_data/data_files/temp.shp temp MYFLD
-    subprocess.call(cmdline)
+    returncode_polygonize = subprocess.call(cmdline)
+    if returncode_polygonize != 0:
+        raise Exception(f"gdal_polygonize failed for {shape_file}")
+
 
 
 def polygonize_weather_data(buffer_file_name):

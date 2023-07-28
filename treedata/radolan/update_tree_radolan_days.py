@@ -88,7 +88,8 @@ def update_tree_radolan_days_for_query(engine, values, query, info):
         with engine.connect() as conn:
             for index, value in enumerate(values):
                 try:
-                    result = conn.execute(text(query.format(f"ARRAY{value[0]}", value[1], value[2])))
+                    resolved_query = query.format(f"ARRAY{value[0]}", value[1], value[2])
+                    result = conn.execute(text(resolved_query))
                     conn.commit()
                     logger.info(f"Updated {index}. radolan square: {result.rowcount} trees affected")
                 except (Exception, psycopg2.DatabaseError) as error:

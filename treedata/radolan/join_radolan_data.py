@@ -12,14 +12,19 @@ def join_radolan_data():
     filelist = []
     for (dirpath, dirnames, filenames) in os.walk(path):
         for ffilename in filenames:
-            if "shp" in ffilename:
+            if ("RW_" in ffilename) and (".shp" in ffilename):
                 filelist.append(path + "/" + ffilename)
 
     gdf = None
+    if len(filelist) == 0:
+        raise Exception("No radolan shp files found")
     for counter, file in enumerate(filelist):
         file_split = file.split("/")
         file_name = file_split[len(file_split) - 1].split('.')[0]
-        date_time_obj = datetime.strptime(file_name, 'RW_%Y%m%d-%H%M')
+        try:
+            date_time_obj = datetime.strptime(file_name, 'RW_%Y%m%d-%H%M')
+        except Exception as e:
+            raise Exception(f"Exception {e} at {file} in {file_name}")
 
         df = geopandas.read_file(file)
         df = df.to_crs("epsg:3857")
