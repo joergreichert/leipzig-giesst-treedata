@@ -107,7 +107,7 @@ SUPABASE_SERVICE_ROLE_KEY=<service role key)
 and 
 
 ```
-MAPBOXUSERNAME=<username as displad in https://account.mapbox.com/ under "Account" on the right upper side>
+MAPBOXUSERNAME=<username as displayed in https://account.mapbox.com/ under "Account" on the right upper side>
 MAPBOXTOKEN=<create secret access token as described here https://docs.mapbox.com/help/tutorials/upload-curl/#getting-started>
 MAPBOXTILESET=<create new tileset under https://studio.mapbox.com/tilesets/ and the copy tile set id and use it here>
 ```

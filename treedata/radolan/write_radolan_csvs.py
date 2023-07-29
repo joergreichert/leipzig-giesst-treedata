@@ -94,7 +94,7 @@ def write_csv_content(trees, path, file_name):
         for index in range(0, len(trees), trees_per_file_limit):
             trees_sublists.append(trees[index:index + trees_per_file_limit])
     else:
-        raise Exception(f"Error: trees is empty for {path}/{file_name}.csv")
+        raise Exception(f"Error: trees is empty for {path}{file_name}.csv")
 
     file_path = f"{path}{file_name}.csv"
     filepath_to_filename[file_path] = f"{file_name}.csv"

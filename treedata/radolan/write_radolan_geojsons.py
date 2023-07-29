@@ -34,7 +34,7 @@ def transform_to_weather_geojson_features(grid, clean):
 
 def transform_to_weather_light_geojson_features(grid, clean):
     def calc_fun(value):
-        return sum(value)
+        return [sum(value)]
 
     return transform_to_features(grid, clean, calc_fun)
 

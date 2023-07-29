@@ -150,7 +150,7 @@ def handle_weather(args):
         file_path_to_file_name = write_radolan_csvs(
             engine=db_engine,
             time_limit_days=TIME_LIMIT_DAYS,
-            path=f"{RADOLAN_PATH}"
+            path=f"{RADOLAN_PATH}/"
         )
         gzip_files(file_path_to_file_name)
     if not args.skip_upload_csvs_to_mapbox:
