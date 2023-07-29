@@ -70,7 +70,14 @@ def calc_plant_year(inputs):
                 return None
             else:
                 age_int = int(inputs['age'])
-                return int(current_year - age_int)
+                if age_int < 0:
+                    # assuming spelling issue with leading dash
+                    age_int = -1 * age_int
+                if age_int >= 1000:
+                    # assuming year instead of age given
+                    return age_int
+                else:
+                    return int(current_year - age_int)
         except:
             logging.exception(f"cannot parse {inputs['age']} as number")
             return None
@@ -168,8 +175,8 @@ def transform_new_tree_data(new_trees, attribute_list, schema_mapping_dict, sche
     transformed_trees = transformed_trees.replace(['99999'], None)
     transformed_trees = transformed_trees.replace('', None)
 
-    transformed_trees['lng'] = transformed_trees.geometry.y.round(5).astype(str)
-    transformed_trees['lat'] = transformed_trees.geometry.x.round(5).astype(str)
+    transformed_trees['lng'] = transformed_trees.geometry.x.round(5).astype(str)
+    transformed_trees['lat'] = transformed_trees.geometry.y.round(5).astype(str)
 
     for key, value in schema_calculated_dict.items():
         if 'inputs' in value:

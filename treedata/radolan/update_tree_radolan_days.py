@@ -31,13 +31,13 @@ def get_weather_data_grid_cells(engine, time_limit_days):
         return result.fetchall()
 
 
-def get_sorted_cleaned_grid(grid, time_limit_days):
+def get_sorted_cleaned_grid(grid, time_limit_days, now=datetime.now()):
     clean = []
     for cell in grid:
-        end_date = datetime.now() + timedelta(days=-1)
-        end_date = end_date.replace(hour=23, minute=50, second=0, microsecond=0)
-        start_date = datetime.now() + timedelta(days=-time_limit_days)
-        start_date = start_date.replace(hour=0, minute=50, second=0, microsecond=0)
+        end_date = now
+        end_date = end_date.replace(hour=0, minute=0, second=0, microsecond=0)
+        start_date = now + timedelta(days=-time_limit_days+1)
+        start_date = start_date.replace(hour=0, minute=0, second=0, microsecond=0)
         clean_data = []
         while start_date <= end_date:
             found = False
@@ -45,10 +45,11 @@ def get_sorted_cleaned_grid(grid, time_limit_days):
                 if start_date == date:
                     found = True
                     clean_data.append(cell[3][dateindex])
+                    break
                     # TODO: Add the algorithm that calculates the actually absorbed amount of water (upper & lower threshold)
             if not found:
                 clean_data.append(0)
-            start_date += timedelta(hours=1)
+            start_date += timedelta(days=1)
         clean.append(clean_data)
     return clean
 
