@@ -4,6 +4,7 @@ import os
 import time
 from city_wfs import configure_city_shape_args
 from trees_wfs import configure_trees_args
+from trees_shape import configure_trees_args as configure_trees_shape_args
 from trees_process import configure_trees_process_args
 from weather import configure_weather_args
 from dotenv import load_dotenv
@@ -27,6 +28,9 @@ configure_city_shape_args(city_shape_parser)
 
 trees_parser = subparsers.add_parser('trees', help="Download and process tree data")
 configure_trees_args(trees_parser)
+
+trees_shape_parser = subparsers.add_parser('trees-shp', help="Download and process tree data from shapefile")
+configure_trees_shape_args(trees_shape_parser)
 
 trees_process_parser = subparsers.add_parser('trees_process', help="Transform and upload tree data")
 configure_trees_process_args(trees_process_parser)

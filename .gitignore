@@ -216,6 +216,7 @@ out/
 /resources/trees/**/*.shp
 /resources/trees/**/*.shx
 /resources/trees/**/*.geojson
+/resources/trees/**/*.zip
 /resources/radolan/**/*.tar.gz
 /resources/radolan/**/*.asc
 /resources/radolan/**/*.tif

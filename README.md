@@ -1,4 +1,4 @@
-# Musterstadt Gießt – Tree Data
+# Leipzig Gießt – Tree Data
 
 Please review the content of the `README.md` and adjust it to the project.
 
@@ -115,8 +115,8 @@ MAPBOXTILESET=<create new tileset under https://studio.mapbox.com/tilesets/ and 
 ## Demo
  * Download city shape WFS file to geojson: `python ./treedata/main.py city_shape`
    * command with all options: `python ./treedata/main.py city_shape --wfs-url <WFS-URL> --source-encoding iso-8859-1 --xml-file-name wfs --geojson-file-name city_shape --skip-download-wfs-xml --skip-convert-to-geojson`
- * Download trees WFS file to geojson: `python ./treedata/main.py trees`
-   * command with all options: `python ./treedata/main.py trees --wfs-url <WFS-URL> --source-encoding iso-8859-1 --xml-file-name wfs --geojson-file-name trees --skip-download-wfs-xml --skip-convert-to-geojson`
+ * Download trees Shapefile file to geojson: `python ./treedata/main.py trees-shp`
+   * command with all options: `python ./treedata/main.py trees-shp --shp-url <Shapefile-URL> --source-encoding iso-8859-1 --shp-file-name shp --geojson-file-name trees --skip-download-shp --skip-convert-to-geojson`
  * Process trees: `python ./treedata/main.py trees_process`
    * process specific trees geojson (from resources/trees): `python ./treedata/main.py trees_process --trees-geojson-file-name s_wfs_baumbestand_2023-07-23`
    * command with all options: `python ./treedata/main.py trees_process --city-shape-geojson-file-name city_shape --trees-geojson-file-name trees --geojson-file-name trees-transformed --database-table-name trees_tmp --skip-transform --skip-store-as-geojson --skip-upload-to-db`
