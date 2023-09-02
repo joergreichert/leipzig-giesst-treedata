@@ -66,8 +66,7 @@ def updated_trees(engine, original_tree_table, tmp_tree_table):
     sql_update_str = f'''
         WITH subquery AS (
             SELECT B."id", B."lat", B."lng", B."artdtsch", B."artbot", B."gattungdeutsch", B."gattung", 
-                   B."standortnr", B."strname", B."hausnr", B."pflanzjahr", B."stammumfg", 
-                   B."kronedurch", B."baumhoehe", B."bezirk", B."geom", B."aend_dat" 
+                   B."standortnr", B."strname", B."pflanzjahr", B."bezirk", B."geom", B."aend_dat" 
             FROM public."{tmp_tree_table}" AS B
         )
         UPDATE public."{original_tree_table}" AS A
@@ -80,11 +79,7 @@ def updated_trees(engine, original_tree_table, tmp_tree_table):
         "gattung" = B."gattung", 
         "standortnr" = B."standortnr", 
         "strname" = B."strname", 
-        "hausnr" = B."hausnr", 
-        "pflanzjahr" = B."pflanzjahr", 
-        "stammumfg" = B."stammumfg",            
-        "kronedurch" = B."kronedurch",
-        "baumhoehe" = B."baumhoehe", 
+        "pflanzjahr" = B."pflanzjahr"::int, 
         "bezirk" = B."bezirk",
         "geom" = B."geom",
         "aend_dat" = B."aend_dat"

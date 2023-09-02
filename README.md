@@ -113,9 +113,8 @@ MAPBOXTILESET=<create new tileset under https://studio.mapbox.com/tilesets/ and 
 ```
 
 ## Demo
- * Download city shape WFS file to geojson: `python ./treedata/main.py city_shape`
-   * command with all options: `python ./treedata/main.py city_shape --wfs-url <WFS-URL> --source-encoding iso-8859-1 --xml-file-name wfs --geojson-file-name city_shape --skip-download-wfs-xml --skip-convert-to-geojson`
  * Download trees Shapefile file to geojson: `python ./treedata/main.py trees-shp`
+   * process local shp file: `python ./treedata/main.py trees-shp --skip-download-shp --shp-file-name strassenbaumkataster_leipzig`
    * command with all options: `python ./treedata/main.py trees-shp --shp-url <Shapefile-URL> --source-encoding iso-8859-1 --shp-file-name shp --geojson-file-name trees --skip-download-shp --skip-convert-to-geojson`
  * Process trees: `python ./treedata/main.py trees_process`
    * process specific trees geojson (from resources/trees): `python ./treedata/main.py trees_process --trees-geojson-file-name s_wfs_baumbestand_2023-07-23`

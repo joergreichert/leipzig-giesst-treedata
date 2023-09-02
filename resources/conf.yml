@@ -1,36 +1,23 @@
 data-schema:
   mapping:
     geometry: geometry
-    name: strname
-    standort_nr: hausnr
-    art_botanisch: artbot
-    art_deutsch: artdtsch
-    gml_id: standortnr
-    baumhoehe_akt: baumhoehe
-    stammdurchmesser_akt: stammdurch
-    kronendurchmesser_akt: kronedurch
+    strasse: strname
+    ortsteil: bezirk
+    standort_nr: standortnr
+    baumart_wi: artbot
+    baumart_de: artdtsch
+    gattung: gattung
+    pflanzjahr: pflanzjahr
   calculated:
-    gattung:
+    id:
       inputs:
-        art_botanisch: species
-      function: lookup_genus
+        standortnr: given_id
+      function: calc_id
     gattungdeutsch:
       inputs:
-        art_botanisch: species
+        baumart_wi: species
       function: lookup_genus_german
-    pflanzjahr:
-      inputs:
-        jalter: age
-      function: calc_plant_year
-    stammumfg:
-      inputs:
-        stammdurchmesser_akt: diameter
-      function: calc_trunc_circumference
-    bezirk:
-      inputs:
-        geometry: geometry
-      function: lookup_district
     aend_dat:
       inputs:
-        aend_dat: update_data_str
+        dat_abgabe: update_data_str
       function: calc_update_date

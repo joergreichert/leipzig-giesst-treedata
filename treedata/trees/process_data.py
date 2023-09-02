@@ -43,9 +43,27 @@ def read_genus_mapping():
 genus_mapping = read_genus_mapping()
 
 
+def calc_id(inputs):
+    if 'given_id' in inputs:
+        try:
+            given_id = inputs['given_id']
+            splitted = given_id.split(sep=".")
+            if len(splitted) > 1:
+                return splitted[1]
+            else:
+                return given_id
+        except:
+            return None
+    else:
+        return None
+
+
 def lookup_genus(inputs):
     if 'species' in inputs:
-        return inputs['species'].split(" ")[0]
+        if isinstance(inputs['species'], str):
+            return inputs['species'].split(" ")[0]
+        else:
+            return None
     else:
         return None
 
@@ -131,16 +149,14 @@ calc_funs = {
     "calc_plant_year": calc_plant_year,
     "calc_trunc_circumference": calc_trunc_circumference,
     "lookup_district": lookup_district,
-    "calc_update_date": calc_update_date
+    "calc_update_date": calc_update_date,
+    "calc_id": calc_id
 }
 
 
 def transform_new_tree_data(new_trees, attribute_list, schema_mapping_dict, schema_calculated_dict, city_shape):
     transformed_trees = new_trees.rename(columns=schema_mapping_dict)
     logger.info(f'Loaded {len(transformed_trees)} trees')
-
-    # transform gml_id here
-    transformed_trees['id'] = transformed_trees['standortnr'].str.split(pat=".").str[1]
 
     # drop not needed columns based on the columns of the old data
     for column in transformed_trees.columns:
